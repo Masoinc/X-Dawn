@@ -1,0 +1,156 @@
+Dquest_Tsk:
+  type: world
+  sspequest:
+  - inventory close
+  - title "title:<&8>[ <&6><&l>XDawn <&8>]" "subtitle:<&6>委托 %qname% 已接受！" fade_in:1s stay:0s fade_out:1s targets:<player>   
+  - execute as_server "pex user <player.name> add qspe"     
+  sevyquest:
+  - inventory close
+  - title "title:<&8>[ <&6><&l>XDawn <&8>]" "subtitle:<&6>委托 %qname% 已接受！" fade_in:1s stay:0s fade_out:1s targets:<player>   
+  - execute as_server "pex user <player.name> add qevy"   
+  fevyquest:
+  - title "title:<&8>[ <&6><&l>XDawn <&8>]" "subtitle:<&6>已完成日常委托！" fade_in:1s stay:0s fade_out:1s targets:<player>  
+  - firework <player.location> star primary:yellow fade:white   
+  - if !<player.has_flag[stat_fevy]> {
+    - flag <player> stat_fevy:1
+  } else {
+    - flag <player> stat_fevy:++
+  }      
+  fspequest:
+  - title "title:<&8>[ <&6><&l>XDawn <&8>]" "subtitle:<&6>已完成特殊委托！" fade_in:1s stay:0s fade_out:1s targets:<player>  
+  - firework <player.location> star primary:yellow fade:white
+  - if !<player.has_flag[stat_fspe]> {
+    - flag <player> stat_fspe:1
+  } else {
+    - flag <player> stat_fspe:++
+  }
+  getl1evy1:
+    - define qname 野兔泛滥
+    - flag <player> evy:1
+    - flag <player> evytgt:<&2>枫雪村野兔
+    - flag <player> evyprocess:0  
+    - flag <player> evydemand:30      
+    - inject locally sevyquest
+  getl1evy2:
+    - define qname 食人成性    
+    - flag <player> evy:2
+    - flag <player> evytgt:食尸蛛
+    - flag <player> evyprocess:0 
+    - flag <player> evydemand:20      
+    - inject locally sevyquest     
+  getl1evy3:
+    - define qname 狼心不死       
+    - flag <player> evy:3
+    - flag <player> evytgt:<&2>冰原狼
+    - flag <player> evyprocess:0  
+    - flag <player> evydemand:20      
+    - inject locally sevyquest     
+  getl1evy4:
+    - define qname 腐化势力        
+    - flag <player> evy:4
+    - flag <player> evytgt:<&2>行尸
+    - flag <player> evyprocess:0  
+    - flag <player> evydemand:20      
+    - inject locally sevyquest
+  getl2evy1:
+    - define qname 犯罪团伙       
+    - flag <player> evy:5
+    - flag <player> evytgt:<&2>莫拉格帮的喽啰
+    - flag <player> evyprocess:0  
+    - flag <player> evydemand:20      
+    - inject locally sevyquest   
+  getl2evy2:
+    - define qname 原始威胁
+    - flag <player> evy:6
+    - flag <player> evytgt:<&2>狂暴的白熊
+    - flag <player> evyprocess:0  
+    - flag <player> evydemand:20      
+    - inject locally sevyquest                                   
+  getl1spe1:
+    - define qname 群狼无首    
+    - inject locally sevyquest
+    - flag <player> spe:1
+    - flag <player> spetgt:<&2>冰原狼王
+    - flag <player> speprocess:0  
+    - flag <player> spedemand:3      
+    - inject locally sspequest   
+  getl1spe2:
+    - define qname 二次死亡    
+    - inject locally sevyquest
+    - flag <player> spe:2
+    - flag <player> spetgt:<&2>魔化行尸
+    - flag <player> speprocess:0  
+    - flag <player> spedemand:2      
+    - inject locally sspequest   
+  getl2spe1:
+    - define qname 黑恶势力    
+    - inject locally sevyquest
+    - flag <player> spe:3
+    - flag <player> spetgt:<&2>莫拉格帮的低级头目
+    - flag <player> speprocess:0  
+    - flag <player> spedemand:6      
+    - inject locally sspequest       
+  events:
+    on mythicmob mob killed by player:
+      - if <c.mob.display_name> CONTAINS <player.flag[evytgt]> {
+        - flag <player> evyprocess:++
+        - if <player.flag[evyprocess]> >= <player.flag[evydemand]> {
+          - execute as_server "pex user <player.name> remove qevy"
+          - flag <player> evytgt:!
+          # - flag <player> evyprocess:!
+          - flag <player> evydemand:!
+          - execute as_server "cr give <player.name> evyq<player.flag[evy]> 1"
+          - flag <player> evy:!
+          - inject locally fevyquest
+        }
+        
+      } else if <c.mob.display_name> CONTAINS <player.flag[spetgt]> {
+        - flag <player> speprocess:++
+        - if <player.flag[speprocess]> >= <player.flag[spedemand]> {
+          - execute as_server "pex user <player.name> remove qspe"
+          - flag <player> spetgt:!
+          # - flag <player> evyprocess:!
+          - flag <player> spedemand:!
+          - execute as_server "cr give <player.name> speq<player.flag[spe]> 1"
+          - flag <player> spe:!
+          - inject locally fspequest  
+        }
+      } else {
+        - define id <player.flag[DNPC_mq_process]>
+        - if <c.mob.display_name> CONTAINS <s@XDsb_mqtrans.yaml_key[%id%.tgtname].parse_color[&]> {
+          - if !<player.has_flag[DNPC_mq_killp]> {
+            - flag <player> DNPC_mq_killp:1
+          } else {
+            - flag <player> DNPC_mq_killp:++
+          }
+        }
+      }
+
+Dquest_CMD:
+  type: command
+  name: xdq
+  description: 委托系统
+  usage: /xdq
+  aliases: ''
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+  - define action <c.args.get[1]>
+  - choose %action%:
+    - case getl1evy:
+      - define qid <li@1|2|3|4.random[1].get[1]>
+      - inject s@Dquest_Tsk path:%action%%qid%     
+    - case getl1spe:
+      - define qid <li@1|2.random[1].get[1]>
+      - inject s@Dquest_Tsk path:%action%%qid% 
+    - case getl2evy:
+      - define qid <li@1|2.random[1].get[1]>
+      - inject s@Dquest_Tsk path:%action%%qid%
+    - case getl2spe:
+      - define qid <li@1.random[1].get[1]>
+      - inject s@Dquest_Tsk path:%action%%qid%      

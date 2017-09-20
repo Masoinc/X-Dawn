@@ -1,0 +1,32 @@
+XDonline_Core:
+  type: world
+  events:
+      on system time minutely:
+        - foreach <server.list_online_players> {
+          - if <def[value].has_flag[onlinetime]> {
+            - flag <def[value]> onlinetime:++
+            - if <def[value].flag[onlinetime]> == 10 {
+              - execute as_server "cr give <def[value].name> online10 1" 
+            } else if <def[value].flag[onlinetime]> == 30 {
+              - execute as_server "cr give <def[value].name> online30 1" 
+            } else if <def[value].flag[onlinetime]> == 60 {
+              - execute as_server "cr give <def[value].name> online60 1" 
+            } else if <def[value].flag[onlinetime]> == 120 {
+              - execute as_server "cr give <def[value].name> online120 1" 
+            }
+          } else {
+            - flag <def[value]> onlinetime:1
+          }
+        }
+      on system time 23:59:
+        - foreach <server.list_players> {
+          - flag <def[value]> onlinetime:!
+        }
+XDeath_pro_oltime:
+  type: procedure
+  script:
+    - if !<player.has_flag[onlinetime]> {
+      - determine '<&6>0 <&7>∑÷÷”'
+    } else {
+      - determine '<&6><player.flag[onlinetime].round> <&7>∑÷÷”'
+    }      

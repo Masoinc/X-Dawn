@@ -1,0 +1,26 @@
+XDexp_Core:
+  type: world
+  events:
+    on player changes xp:
+      - define base <proc[XDexp_pro_v]>
+      - if <player.has_flag[XDdeath_runeb2]> {
+        - actionbar '<&8>[ <&7>经验<&co> <&2>+<context.amount.mul[2]> <&8>]'
+        - determine <context.amount.mul[%base%].mul[2]>
+      } else if <player.has_flag[XDdeath_runeb1]> {
+        - actionbar '<&8>[ <&7>经验<&co> <&2>+<context.amount.mul[1.5]> <&8>]'
+        - determine <context.amount.mul[1.5]>
+      } else {
+        - actionbar '<&8>[ <&7>经验<&co> <&2>+<context.amount> <&8>]'
+      }    
+XDexp_pro_v:
+  type: procedure
+  script:
+    - if <player.in_group[VIII]> {
+      - determine 2
+    } else if <player.in_group[VII]> {
+      - determine 1.5
+    } else if <player.in_group[VI]> {
+      - determine 1.2
+    } else {
+      - determine 1
+    }

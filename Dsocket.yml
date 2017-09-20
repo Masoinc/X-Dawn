@@ -1,0 +1,126 @@
+Socket_Core:
+  type: world
+  debug: false
+  events:
+    on dsocket command:
+        - determine passively cancelled
+        - inventory open d:<in@Dsocket> 
+    on player closes inventory:
+    - if <player.has_flag[fixed]> == false {
+        - if <context.inventory.title> CONTAINS "打孔<&8><&lb><&2>√<&8><&rb>" {
+            - define result <context.inventory.list_contents.get[3]>
+            - give <def[result]>
+            - queue clear
+        }
+        - if <context.inventory.title> == "打孔" {
+            - define result <context.inventory.list_contents.get[3]>
+            - give <def[result]>
+            - flag <player> fixed:!
+        }        
+    } else {
+        - flag <player> fixed:! 
+    }
+    
+
+    on player clicks in inventory:  
+        - if <context.inventory.title> CONTAINS "打孔<&8><&lb><&2>√<&8><&rb>" {
+            - if li@PLACE_ALL|PICKUP_ALL CONTAINS <context.action> { 
+                - if <context.raw_slot> == 7 {
+                    - define result <context.inventory.list_contents.get[3]>                
+                    - if !<player.inventory.contains_any[i@DSocketI].quantity[1]> {
+                      - title "title:<&8>[ <&6><&l>现代生存 <&8>]" "subtitle:<&c>你的背包中没有打孔卷轴哦 <&3>○" fade_in:1s stay:0s fade_out:1s targets:<player>     
+                      - inventory close
+                      # - give <def[result]>                      
+                      - queue clear
+
+                    }
+
+                    - if <def[result].lore> == "null" {   
+                      - title "title:<&8>[ <&6><&l>现代生存 <&8>]" "subtitle:<&c>此物品不可打孔 <&3>○" fade_in:1s stay:0s fade_out:1s targets:<player>     
+                      - inventory close
+                      # - give <def[result]>
+                      - queue clear
+
+                    }
+                    - adjust <def[result]> "lore:<def[result].lore>|<&ss>8<&ss>l- <&ss>7<&lt> <&ss>1<&ss>5<&ss>r<&ss>7Empty<&ss>1<&ss>5<&ss>r<&ss>7 <&gt>" save:A1
+                    - give <entry[A1].result>
+                    - take bydisplay:<i@DSocketI.display> q:1
+                    - flag <player> fixed
+                    - flag <player> fix:<proc[FIX_pro_a1].sub[1]> duration:18h
+                    - determine passively cancelled
+                    - inventory open d:<in@Dsocket> 
+                }   
+            } else {
+                - determine cancelled
+            }
+            - if <context.item> == <i@sp> {
+                - determine cancelled
+            }
+        }
+    on player clicks in in@Dsocket:
+        - if li@PLACE_ALL|PICKUP_ALL CONTAINS <context.action> { 
+            - if <context.raw_slot> == 7 {
+                - determine passively cancelled
+                - define item <context.inventory.list_contents.get[3]>
+                - if <def[item]> !== i@air {
+                    - define fixitem <context.inventory.list_contents.get[3]>
+                    - define Dsocket <player.open_inventory> 
+                    - adjust <def[Dsocket]> 'title:打孔<&8><&lb><&2>√<&8><&rb>' save:a1
+                    - adjust <entry[a1].result>  'contents:li@i@sp|i@sp|<def[fixitem]>|i@sp|i@sp|i@sp|i@Socket_IB|i@sp|i@sp' save:a2
+                    - flag <player> fixed
+                    - inventory open d:<entry[a2].result> 
+                    - queue clear   
+                }
+            }   
+        } else {
+            - determine cancelled
+        }
+        - if <context.item> == <i@sp> {
+            - determine cancelled
+        }
+DSocketI:    
+  type: item
+  material: i@339
+  display name: "<&8>[镶嵌]<&6>尘晶打孔卷轴"
+  lore:  
+  - <&7>◇ 功能类·尘晶
+  - <&7>
+  - <&6>▽ 装载后<&co>
+  - <&6>○ <&7>增加镶嵌槽x1
+  - <&7>
+  - <&8><&gt><&gt><&gt>将卷轴拖动到武器上即可打孔
+  - <&8><&gt><&gt><&gt>原版武器不可打孔
+  no_id: true        
+Dsocket:
+  type: inventory
+  inventory: CHEST
+  title: 打孔
+  size: 9
+  definitions:
+    sp: i@sp
+  slots:
+    - "[sp] [sp] [] [sp] [sp] [sp] [i@Socket_IA] [sp] [sp]"
+Socket_IA:
+  type: item
+  material: i@145
+  display name: <&7>◇ <&6>识别 <&7>◇
+  lore:
+  - <&7>○ 分析物品组成...
+  - <&7>○ 请在左边格子内放入要打孔的物品
+  - <&7>○ 请在背包里放入打孔卷轴
+  - <&7>○ 放好物品与卷轴后请点我    
+  - ''
+  - <&c><&l><&gt><&e><&l><&gt><&6><&l><&gt> 点击进行识别
+  no_id: true
+Socket_IB:
+  type: item
+  material: i@145
+  display name: <&7>◇ <&6>打孔 <&7>◇
+  lore:
+  - <&7>○ 物品已识别
+  - ''
+  - <&c><&l><&gt><&e><&l><&gt><&6><&l><&gt> 点击即可打孔
+  no_id: true  
+sp:
+  type: item
+  material: i@160:15

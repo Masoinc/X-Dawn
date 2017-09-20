@@ -1,0 +1,11 @@
+XDmq_trigger:
+  type: world
+  events:
+    on player teleports:
+      - if <context.destination.world> == "w@Volumn2" {
+        - if <player.flag[DNPC_mq_process]> == "v1q20" {
+          - inject s@DNPC_tsk path:v2start
+          - flag <player> DNPC_mq_process:v2q1
+          - execute as_op "pex user <player.name> add v2q0"
+        }
+      }

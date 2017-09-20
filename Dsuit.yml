@@ -1,0 +1,111 @@
+XDdeath_Core:
+  type: world
+  events:
+    
+
+    on player damages entity:
+      - if <player.has_flag[XDdeath_effect]> {
+        - actionbar "<&7>[ <&8>疲劳状态剩余时间 <&2><player.flag[XDdeath_effect].expiration.in_seconds.round>s <&7>]<&8> [<&6>无法攻击<&8>]"
+        - determine cancelled
+      }
+    on player respawns:
+      - define XDdeath_time <proc[XDeath_pro_dlftime]>
+      - if <player.has_flag[XDdeath_runea]> {
+        - define XDdeath_time <def[XDdeath_time].sub[2]>
+        - title "title:<&8>[ <&6><&l>祈祷 <&8>]" "subtitle:<&7>死亡疲劳效果减半 剩余时间: <&2><player.flag[XDdeath_runea].expiration.in_minutes.round><&7> 分" fade_in:1s stay:5s fade_out:1s targets:<player>
+      }
+      - execute as_op "effect <player.name> minecraft:slowness %XDdeath_time% 1" silent
+      - execute as_op "effect <player.name> minecraft:weakness %XDdeath_time% 1" silent   
+      - wait 2s
+      - actionbar "<&7>[ <&8>疲劳状态将持续 <&2>%XDdeath_time%s <&7>]<&8> [<&6>无法攻击<&8>]"
+      - flag <player> XDdeath_effect duration:%XDdeath_time%s  
+XDdeath_CMD:
+  type: command
+  name: xddeath
+  description: 死亡疲劳
+  usage: /xddeath
+  aliases:
+  - xdd
+  # the command.
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+    - if <c.args.get[1]> == "runea1" {
+      - if <player.has_flag[XDdeath_runea]> {
+        - define lftime <player.flag[XDdeath_runea].expiration>
+        - flag <player> XDdeath_runea:!
+        - flag <player> XDdeath_runea duration:<def[lftime].add[d@1h]>
+      } else {
+        - flag <player> XDdeath_runea duration:1h
+      }
+      - inventory close
+      - firework <player.location> star primary:red fade:white 
+      - title "title:<&8>[ <&6><&l>XDawn <&8>]" "subtitle:<&6><&dq>他<&dq>感受到了你的诚意..." fade_in:1s stay:2s fade_out:1s targets:<player>   
+    } else if <c.args.get[1]> == "runea2" {
+      - if <player.has_flag[XDdeath_runea]> {
+        - define lftime <player.flag[XDdeath_runea].expiration>
+        - flag <player> XDdeath_runea:!
+        - flag <player> XDdeath_runea duration:<def[lftime].add[d@3h]>
+      } else {
+        - flag <player> XDdeath_runea duration:3h
+      }
+      - inventory close
+      - firework <player.location> star primary:red fade:white 
+      - title "title:<&8>[ <&6>祈祷 <&8>]" "subtitle:<&6><&dq>他<&dq>感受到了你的诚意..." fade_in:1s stay:2s fade_out:1s targets:<player>
+    } else if <c.args.get[1]> == "runeb1" {
+      - if <player.has_flag[XDdeath_runeb1]> {
+        - define lftime <player.flag[XDdeath_runeb1].expiration>
+        - flag <player> XDdeath_runeb1:!
+        - flag <player> XDdeath_runeb1 duration:<def[lftime].add[d@1h]>
+      } else {
+        - flag <player> XDdeath_runeb1 duration:1h
+      }
+      - inventory close
+      - firework <player.location> star primary:red fade:white 
+      - title "title:<&8>[ <&6>祈祷 <&8>]" "subtitle:<&6><&dq>他<&dq>感受到了你的诚意..." fade_in:1s stay:2s fade_out:1s targets:<player>
+    } else if <c.args.get[1]> == "runeb2" {
+      - if <player.has_flag[XDdeath_runeb1]> {
+        - define lftime <player.flag[XDdeath_runeb1].expiration.in_minutes.sub[2]>
+        - flag <player> XDdeath_runeb1:!
+        - flag <player> XDdeath_runeb2 duration:<def[lftime].add[d@1h]>
+      } else if <player.has_flag[XDdeath_runeb2]> {
+        - define lftime <player.flag[XDdeath_runeb2].expiration>
+        - flag <player> XDdeath_runeb2:!
+        - flag <player> XDdeath_runeb2 duration:<def[lftime].add[d@1h]>
+      } else {
+        - flag <player> XDdeath_runeb2 duration:1h
+      }
+      - inventory close
+      - firework <player.location> star primary:red fade:white 
+      - title "title:<&8>[ <&6>祈祷 <&8>]" "subtitle:<&6><&dq>他<&dq>感受到了你的诚意..." fade_in:1s stay:2s fade_out:1s targets:<player>
+    } 
+
+
+
+
+XDeath_pro_dlftime:
+  type: procedure
+  script:
+    - if <player.in_group[VIII]> {
+      - determine 30
+    } else if <player.in_group[VII]> {
+      - determine 60
+    } else if <player.in_group[VI]> {
+      - determine 90
+    } else {
+      - determine 120
+    }
+  
+XDeath_pro_a1lftime:
+  type: procedure
+  script:
+    - if !<player.has_flag[XDdeath_runea]> {
+      - determine 0
+    } else {
+      - determine <player.flag[XDdeath_runea].expiration.in_minutes.round>
+    }

@@ -1,0 +1,144 @@
+XDsign_CMD:
+  type: command
+  name: xdsign
+  description: 签到
+  usage: /xdsign
+  aliases:
+  - xds
+  # the command.
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+  - if <c.args.get[1]> == clearstat {
+    - flag <player> XDsign_days:!
+    - foreach <player.list_flags> {
+      - if <def[value]> CONTAINS "XDSign_" {
+        - flag <player> <def[value]>:!
+      }
+    }
+    - queue clear
+  }
+  - inventory open d:in@XDsign_GUI
+
+
+XDsign:
+  type: world
+  debug: false
+  handleevy:
+  - execute as_server "cr give <player.name> <proc[XDsign_handleevy]> 1" 
+  events:
+    on player clicks in inventory:
+      - if <c.inventory.title> == "<&8>[ 签到·<util.date.time.month>月 <&8>]" {
+          - determine passively cancelled
+          - if <c.raw_slot> == <util.date.time.day> {
+            - if <player.has_flag[XDsign_<util.date.time.day>]> {
+              - inventory close
+              - title "title:<&8>[ <&6>你已经签到过了 <&8>]" fade_in:1s stay:0s fade_out:1s targets:<player>
+              - queue clear
+            }
+            - flag <player> XDsign_<util.date.time.day>
+            - if !<player.has_flag[XDsign_days]> {
+              - flag <player> XDsign_days:1
+            } else {
+              - flag <player> XDsign_days:++
+            }
+            - inventory close
+            - inject locally handleevy
+            - title "title:<&8>[ <&6>已签到 <&8>]" "subtitle:<&7>奖励以补给箱形式发放"fade_in:1s stay:0s fade_out:1s targets:<player>
+            - firework <player.location> star primary:yellow fade:red 
+          } else if <c.raw_slot> == 50 {
+            - execute as_op "bs Core"
+        }
+      }
+
+XDsign_GUI:
+  type: inventory
+  inventory: CHEST
+  title: "<&8>[ 签到·<util.date.time.month>月 <&8>]"
+  size: 54
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[durability=1;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+  slots:
+    - "[<proc[XDsign_j].context[1]>] [<proc[XDsign_j].context[2]>] [<proc[XDsign_j].context[3]>] [<proc[XDsign_j].context[4]>] [<proc[XDsign_j].context[5]>] [<proc[XDsign_j].context[6]>] [<proc[XDsign_j].context[7]>] [<proc[XDsign_j].context[8]>] [<proc[XDsign_j].context[9]>]"
+    - "[<proc[XDsign_j].context[10]>] [<proc[XDsign_j].context[11]>] [<proc[XDsign_j].context[12]>] [<proc[XDsign_j].context[13]>] [<proc[XDsign_j].context[14]>] [<proc[XDsign_j].context[15]>] [<proc[XDsign_j].context[16]>] [<proc[XDsign_j].context[17]>] [<proc[XDsign_j].context[18]>]"    
+    - "[<proc[XDsign_j].context[19]>] [<proc[XDsign_j].context[20]>] [<proc[XDsign_j].context[21]>] [<proc[XDsign_j].context[22]>] [<proc[XDsign_j].context[23]>] [<proc[XDsign_j].context[24]>] [<proc[XDsign_j].context[25]>] [<proc[XDsign_j].context[26]>] [<proc[XDsign_j].context[27]>]"
+    - "[<proc[XDsign_j].context[28]>] [<proc[XDsign_j].context[29]>] [<proc[XDsign_j].context[30]>] [<proc[XDsign_j].context[31]>] [] [] [] [] []"
+    - "[15] [15] [15] [15] [15] [15] [15] [15] [15]"   
+    - "[i@XDsign_GUI_award1] [] [] [] [i@XDsign_GUI_back] [] [] [] [i@XDsign_GUI_stat]"    
+
+XDsign_GUI_award1:
+  type: item
+  material: i@371
+  display name: <&7>[ <&6>每日奖励 <&7>]
+  lore:
+  - <&6>○ 摩根铜币<&7>x30
+  - <&6>○ 日常委托书
+  - <&6>○ 特殊委托书
+  no_id: true    
+
+XDsign_GUI_stat:
+  type: item
+  material: i@403
+  display name: <&7>[ <&6>签到统计 <&7>]
+  lore:
+  - <&7>▽ 本月签到天数: <proc[XDsign_stat]>
+  no_id: true
+
+XDsign_GUI_back:
+  type: item
+  material: i@166
+  display name: <&7>[ <&6>返回 <&7>]
+  no_id: true
+
+XDsign_stat:
+  type: procedure
+  debug: false  
+  definitions: '1'
+  script:  
+  - if !<player.has_flag[XDsign_days]> {
+    - determine 0
+  } else {
+    - determine <player.flag[XDsign_days].round>
+  }
+XDsign_handleevy:
+  type: procedure
+  debug: false  
+  definitions: '1'
+  script:
+    - if <player.in_group[SVIP]> {
+      - determine signevysv
+    } else if <player.in_group[VIP]> {
+      - determine signevyv
+    } else {
+      - determine signevy
+    }    
+XDsign_j:
+  type: procedure
+  debug: false  
+  definitions: '1'
+  script:
+  - if <def[1]> == "31" {
+    - if li@1|3|5|7|8|10|12 !CONTAINS <util.date.time.month> {
+      - determine i@air
+    } else if <util.date.time.day> == <def[1]> {
+      - determine i@enchanted_book[display_name=<&7><&lb><&sp><&6><def[1]>日<&sp><&7><&rb>;lore=<&7>▽<&sp>点击签到]
+      - queue clear
+    } else {
+      - determine i@air
+    }
+  }
+  - if <util.date.time.day> == <def[1]> {
+      - determine i@enchanted_book[display_name=<&7><&lb><&sp><&6><def[1]>日<&sp><&7><&rb>;lore=<&7>▽<&sp>点击签到]
+  } else if <util.date.time.day> > <def[1]> {
+      - determine i@empty_map[display_name=<&7><&lb><&sp><&6><def[1]>日·已过期<&sp><&7><&rb>]
+  } else {
+      - determine i@air
+  }

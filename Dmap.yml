@@ -1,0 +1,31 @@
+XDMap_CND:
+  type: command
+  name: xdmap
+  description: 2
+  usage: /xdmap
+  aliases: ''
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+    - define base <c.args.get[1]> 
+    - execute as_op "bs <proc[XDMap_pro_judge].context[%base%]>"
+XDMap_pro_judge:
+  type: procedure
+  definitions: "base"
+  script:
+  - if <player.in_group[VIII]> {
+    - define spe v3
+  } else if <player.in_group[VII]> {
+    - define spe v2
+  } else if <player.in_group[VI]> {
+    - define spe v1
+  } else {
+    - define spe ''
+  }
+  - determine l1%spe%
+  

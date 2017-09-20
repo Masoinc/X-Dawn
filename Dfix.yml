@@ -1,0 +1,229 @@
+XDfix_CMD:
+  type: command
+  name: xdfix
+  description: 强化
+  usage: /xdfix
+  aliases:
+  - xdf
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+  - inventory open d:in@XDfix_GUI
+
+XDfix:
+  type: world
+  debug: false
+  handleconfirm:
+  - flag <player> XDfix_opening
+  # II定义 fix
+  - flag <def[player]> fix:%wpn%
+  - flag <def[player]> fixlore:<def[wpn].lore>
+  - inventory open d:in@XDfix_GUI_cfm
+  - flag <player> XDfix_opening:!
+
+  handlefix:
+  # II使用 duralore 并回收
+  - define duralore <player.flag[duralore]>
+  - flag <player> duralore:!
+  # II使用 duraloreloc 并回收
+  - define duraloreloc <player.flag[duraloreloc]>
+  - flag <player> duraloreloc:!  
+  - flag <player> XDfix_opening
+  # II使用 fix 并回收  
+  - define fixlore <player.flag[fixlore]>
+  - adjust <player.flag[fix]> "lore:<def[fixlore].set[%duralore%].at[%duraloreloc%]>" save:result
+  - flag <player> fix:<entry[result].result>  
+  - inventory open d:in@XDfix_GUI_SUCS
+  - flag <player> fix:!  
+  - flag <player> XDfix_opening
+
+  events:
+    on flagclear command:
+      - foreach <player.list_flags> {
+        - flag <player> <def[value]>:!
+      }
+    on player closes inventory:
+      - if <c.inventory.title> == <in@XDfix_GUI.title> {
+        - if <player.has_flag[XDfix_opening]> queue clear
+        # I未使用 fixcost1 并回收
+        - flag <player> fixcost1:!
+        # I未使用 fix 并回收
+        - flag <player> fix:!        
+        - define wpn <c.inventory.list_contents.get[12]>
+        - give %wpn%
+        - queue clear
+      }
+      - if <c.inventory.title> == <in@XDfix_GUI_cfm.title> {
+        - if <player.has_flag[XDfix_opening]> queue clear
+        # II未使用 fixcost1 并回收
+        - flag <player> fixcost1:!
+        # II未使用 fix 并回收
+        - flag <player> fix:!
+        - define wpn <c.inventory.list_contents.get[12]>
+        - give %wpn%
+        - queue clear
+      }      
+      - if <c.inventory.title> == <in@XDfix_GUI_SUCS.title> {
+        - define wpn <c.inventory.list_contents.get[5]>
+        - give %wpn%
+      }            
+    on player clicks in in@XDfix_GUI_FAIL:
+        - if <c.raw_slot> == 8 {
+          - inventory open d:in@XDfix_GUI
+        }        
+        - determine cancelled  
+                       
+    on player clicks in in@XDfix_GUI:
+        - if <c.item> == i@diamond_hoe,1[display_name=&ss8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true] {
+          - determine cancelled
+        }
+        - if li@sp1|sp5|sp8|sp15 CONTAINS <c.item.scriptname> {
+          - determine cancelled
+        } 
+        - if <c.raw_slot> == "16" {
+          - determine passively cancelled
+          - define wpn <c.inventory.list_contents.get[12]>
+          - if %wpn% == "null" {
+            - inventory close
+            - title "subtitle:<&8>[ <&6>请放入要修理的武器 <&8>]" fade_in:1s stay:0s fade_out:1s targets:<player>
+            - queue clear
+          }       
+          - define duraloc <def[wpn].lore.find_partial[耐久值]> 
+          - if li@iron_sword !CONTAINS <def[wpn].material.name> || %duraloc% == -1 {
+            - inventory close
+            - title "subtitle:<&8>[ <&6>此物品不可修理 <&8>]" fade_in:1s stay:0s fade_out:1s targets:<player>
+            - queue clear
+          }
+
+          - define durattl <def[wpn].lore.get[%duraloc%].after[<&7>/<&a>].before[<&0><&2><&r><&7>]>
+          - define duracrt <def[wpn].lore.get[%duraloc%].after[<&co><&sp><&0><&2><&r><&a>].before[<&7>/]>
+
+          - if %duracrt% >= %durattl% {
+            - inventory close
+            - title "subtitle:<&8>[ <&6>此物品不需要修理 <&8>]" fade_in:1s stay:0s fade_out:1s targets:<player>
+            - queue clear
+          }
+          # I定义 fixcost1
+          # I定义 duralore
+          # I定义 duraloreloc
+          - if <def[wpn].display> CONTAINS "<&7>黑铁短刀" {
+            - flag <player> fixcost1:30
+            - flag player duralore:<&7><&0><&1><&r><&7><&6>▽<&sp>耐久值<&0><&1><&r><&7><&co><&sp><&0><&2><&r><&a>%durattl%<&7>/<&a>%durattl%<&0><&2><&r><&7>
+            - flag player duraloreloc:%duraloc%
+            - define player <player>
+            - inject locally handleconfirm
+          }
+        }
+
+    on player clicks in in@XDfix_GUI_cfm:
+        - if <c.item> == i@diamond_hoe,1[display_name=&ss8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true] {
+          - determine cancelled
+        }      
+        - determine passively cancelled
+        - if <c.raw_slot> == 16 {
+          # II使用 fixcost1 并回收
+          - define fixcost1 <player.flag[fixcost1]>
+
+          - flag <player> fixcost1:!
+          - if <player.inventory.contains.display[strict:<&6>摩根铜币].quantity[%fixcost1%]> {
+            - take bydisplay:<&6>摩根铜币 quantity:%fixcost1%
+            - inject locally handlefix
+          } else {
+            - flag <player> tip:XDfix_GUI_tip3
+            - inventory open d:in@XDfix_GUI_FAIL
+            - flag <player> tip:3
+          }
+        }
+      
+XDfix_GUI:
+  type: inventory
+  inventory: CHEST
+  title: "<&8>[ 武器修理 <&8>]"
+  size: 27
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+  slots:
+    - "[15] [15] [5] [15] [15] [15] [15] [15] [15]"
+    - "[15] [15] [] [15] [15] [15] [i@XDfix_GUI_fix1] [15] [15]"
+    - "[15] [15] [5] [15] [15] [15] [15] [15] [15]"  
+
+XDfix_GUI_cfm:
+  type: inventory
+  inventory: CHEST
+  title: "<&8>[ 武器修理·确认 <&8>]"
+  size: 27
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+  slots:
+    - "[15] [15] [5] [15] [15] [15] [15] [15] [15]"
+    - "[15] [15] [<player.flag[fix]>] [15] [15] [15] [i@XDfix_GUI_fix2] [15] [15]"
+    - "[15] [15] [5] [15] [15] [15] [15] [15] [15]"  
+
+XDfix_GUI_FAIL:
+  type: inventory
+  inventory: DISPENSER
+  title: "<&8>[ 修理失败 <&8>]"
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+  slots:
+    - "[15] [15] [15]"
+    - "[15] [i@<player.flag[tip]>] [15]"
+    - "[15] [15] [15]"  
+
+XDfix_GUI_SUCS:
+  type: inventory
+  inventory: DISPENSER
+  title: "<&8>[ 修理成功 <&8>]"
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+  slots:
+    - "[15] [15] [15]"
+    - "[15] [<player.flag[fix]>] [15]"
+    - "[15] [15] [15]"
+
+XDfix_GUI_fix1:
+  type: item
+  material: i@145
+  display name: <&7>[ <&6>修理 <&7>]
+  lore:
+  - <&7>▽ 绿色栏位<&co>
+  - <&7>○ 请放入 <&6>武器
+  - <&7>
+  - <&7>▽ 记得准备好钱
+  no_id: true
+
+XDfix_GUI_fix2:
+  type: item
+  material: i@145
+  display name: <&7>[ <&6>确认·修理 <&7>]
+  lore:
+  - <&7>▽ 本次修理须花费<&co>
+  - <&7>○ <&6>摩根铜币 <&7>x<player.flag[fixcost1]>
+  no_id: true
+
+XDfix_GUI_tip3:
+  type: item
+  material: i@403
+  display name: <&7>[ <&6>提示 <&7>]
+  lore:
+  - <&7>▽ 所需铜币不足
+  no_id: true    
+
+    

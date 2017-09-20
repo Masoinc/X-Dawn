@@ -1,0 +1,161 @@
+XDVip_listener:
+  type: world
+  events:
+    on player receives message:
+      - if <c.message> CONTAINS "group-VIII-until" narrate 'test'
+
+XDVip_CMD:
+  type: command
+  name: xdvip
+  description: VIP系统
+  usage: /xdvip
+  aliases: ''
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+  - define action <c.args.get[1]>
+  - define duration <c.args.get[2]>
+  - inject s@XDVip_Core path:%action%_%duration%
+
+
+XDVip_Core:
+  type: task
+  announce:
+    - announce '<&6><&m><&l>一一一一一一一一一一一一一一一一一一一一一一一一一一一一'   
+    - announce ''  
+    - announce '%announce_msg%' 
+    - announce ''    
+    - announce '<&6><&m><&l>一一一一一一一一一一一一一一一一一一一一一一一一一一一一'      
+  clear_stat:
+    - flag <player> XDVip:!
+    - flag <player> XDVip_expi:!
+    - execute as_server "pex user <player.name> remove XDVIP.have.vi"
+    - execute as_server "pex user <player.name> group remove VI"  
+  chargevi_15:
+    # 已经是V.I
+    - if <player.has_flag[XDVip]> && <player.flag[XDVip]> == "VI" {
+       - define duration <player.flag[XDVip_expi].expiration>
+       - flag <player> XDVip_expi:!
+       - flag <player> XDVip_expi duration:<def[duration].add[15d]>
+       - define sucs_msg1 "<&8>[ <&7>已为 <&2>V.I分舵执事 <&7>续费 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"              
+    # 不是V.I
+    } else {
+       - flag <player> XDVip:VI
+       - flag <player> XDVip_expi duration:15d
+       - define sucs_msg1 "<&8>[ <&7>已升阶为 <&2>V.I分舵执事 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"   
+       - define announce_msg "<&8>[ <&6><&l>XDawn <&8>] <&6><player.name> <&7>刚刚升阶为 <&2>V.I分舵执事 <&7>!"    
+       - inject locally announce       
+    }
+    - execute as_server "pex user <player.name> group add VI * <player.flag[XDVip_expi].expiration.in_seconds.round>"     
+    - title "title:%sucs_msg1%" "subtitle:%sucs_msg2%" fade_in:1s stay:5s fade_out:1s targets:<player>   
+    - if !<player.has_permission[vi.upgrade]> {
+      - execute as_server "cr give <player.name> VI_upgrade 1"
+      - execute as_server "pex user <player.name> add vi.upgrade"
+    }
+  chargevii_15:
+    # 已经是V.II
+    - if <player.in_group[VII]> {
+       - define duration <player.flag[XDVip_expi].expiration>
+       - flag <player> XDVip_expi:!
+       - flag <player> XDVip_expi duration:<def[duration].add[15d]>
+       - define sucs_msg1 "<&8>[ <&7>已为 <&6>V.II上级司祭 <&7>续费 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"              
+    # 是V.I
+    } else if <player.in_group[VI]> {
+       - define duration d@<player.flag[XDVip_expi].expiration.in_seconds.div[2].round>s
+       - flag <player> XDVip:VII       
+       - flag <player> XDVip_expi:!
+       - flag <player> XDVip_expi duration:<def[duration].add[15d]>
+       - define sucs_msg1 "<&8>[ <&7>已升阶为 <&6>V.II上级司祭 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"
+       - define announce_msg "<&8>[ <&6><&l>XDawn <&8>] <&6><player.name> <&7>刚刚升阶为 <&2>V.II上级司祭 <&7>!"    
+       - inject locally announce           
+    # 普通玩家  
+    } else {
+       - flag <player> XDVip:VII
+       - flag <player> XDVip_expi duration:15d
+       - define sucs_msg1 "<&8>[ <&7>已升阶为 <&2>V.II上级司祭 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"   
+       - define announce_msg "<&8>[ <&6><&l>XDawn <&8>] <&6><player.name> <&7>刚刚升阶为 <&2>V.II上级司祭 <&7>!"    
+       - inject locally announce       
+    }
+    - execute as_server "pex user <player.name> group add VII * <player.flag[XDVip_expi].expiration.in_seconds.round>"     
+    - title "title:%sucs_msg1%" "subtitle:%sucs_msg2%" fade_in:1s stay:5s fade_out:1s targets:<player>  
+    - if !<player.has_permission[vii.upgrade]> {
+      - execute as_server "cr give <player.name> VII_upgrade 1"
+      - execute as_server "pex user <player.name> add vii.upgrade"
+    }    
+  chargeviii_15:
+    # 已经是V.III
+    - if <player.has_flag[XDVip]> && <player.flag[XDVip]> == "VIII" {
+       - define duration <player.flag[XDVip_expi].expiration>
+       - flag <player> XDVip_expi:!
+       - flag <player> XDVip_expi duration:<def[duration].add[15d]>
+       - define sucs_msg1 "<&8>[ <&7>已为 <&c>V.III核心主教 <&7>续费 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"          
+    # 已经是V.II
+    } else if <player.has_flag[XDVip]> && <player.flag[XDVip]> == "VII" {
+       - define duration d@<player.flag[XDVip_expi].expiration.in_seconds.div[2].round>s
+       - flag <player> XDVip:VIII       
+       - flag <player> XDVip_expi:!
+       - flag <player> XDVip_expi duration:<def[duration].add[15d]>
+       - define sucs_msg1 "<&8>[ <&7>已升阶为 <&c>V.III核心主教 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"    
+       - define announce_msg "<&8>[ <&6><&l>XDawn <&8>] <&6><player.name> <&7>刚刚升阶为 <&c>V.III核心主教 <&7>!"    
+       - inject locally announce                 
+    # 已经是V.I
+    } else if <player.has_flag[XDVip]> && <player.flag[XDVip]> == "VI" {
+       - define duration d@<player.flag[XDVip_expi].expiration.in_seconds.div[3].round>s
+       - flag <player> XDVip:VIII       
+       - flag <player> XDVip_expi:!
+       - flag <player> XDVip_expi duration:<def[duration].add[15d]>
+       - define sucs_msg1 "<&8>[ <&7>已升阶为 <&c>V.III核心主教 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"
+       - define announce_msg "<&8>[ <&6><&l>XDawn <&8>] <&6><player.name> <&7>刚刚升阶为 <&c>V.III核心主教 <&7>!"    
+       - inject locally announce           
+    # 普通玩家  
+    } else {
+       - flag <player> XDVip:VIII
+       - flag <player> XDVip_expi duration:15d
+       - define sucs_msg1 "<&8>[ <&7>已升阶为 <&c>V.III核心主教 <&8>]"
+       - define sucs_msg2 "<&7>剩余天数: <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天"   
+       - define announce_msg "<&8>[ <&6><&l>XDawn <&8>] <&6><player.name> <&7>刚刚升阶为 <&c>V.III核心主教 <&7>!"    
+       - inject locally announce       
+    }
+    - execute as_server "pex user <player.name> group add VIII * <player.flag[XDVip_expi].expiration.in_seconds.round>"     
+    - title "title:%sucs_msg1%" "subtitle:%sucs_msg2%" fade_in:1s stay:5s fade_out:1s targets:<player> 
+    - if !<player.has_permission[viii.upgrade]> {
+      - execute as_server "cr give <player.name> VIII_upgrade 1"
+      - execute as_server "pex user <player.name> add viii.upgrade"
+    }    
+
+
+
+XDVip_pro:
+  type: procedure
+  definitions: "value"
+  script: 
+    - if <def[value]> == crtlvl {
+      - if <player.in_group[VIII]> {
+        - determine <&c>V.III核心主教
+      } else if <player.in_group[VII]> {
+        - determine <&6>V.II上级司祭
+      } else if <player.in_group[VI]> {
+        - determine <&2>V.I分舵执事
+      } else {
+        - determine <&7>无
+      }
+    } else if <def[value]> == duration {
+      - if <player.in_group[VI]> || <player.in_group[VII]> || <player.in_group[VIII]> {
+        - determine <&6><player.flag[XDVip_expi].expiration.in_days.round> <&7>天
+      } else {
+        - determine &70 天
+      }
+    }

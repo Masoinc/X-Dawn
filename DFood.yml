@@ -1,0 +1,15 @@
+DFood:
+  type: world
+  events:
+    on player consumes item:
+      - if <c.item.display> == "<&7>黑面包" {
+        # 面包默认 5
+        - feed -3
+      } else if <c.item.display> == "<&7>军用干粮" {
+        - feed -1
+      } else if <c.item.display> == "<&f>枫雪村野兔肉" {
+        
+        - actionbar "<&8>[ <&6>吃生的东西很容易死 <&8>]"
+        - determine cancelled
+      }
+    

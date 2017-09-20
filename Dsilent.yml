@@ -1,0 +1,45 @@
+Dsilent:
+  type: world
+  debug: false
+  events:
+    on player receives message:
+        - if <context.message> CONTAINS 'was put in your inventory' {
+          - determine cancelled
+        }
+        - if <context.message> CONTAINS '传送到地标' {
+          - determine cancelled
+        }        
+        - if <context.message> CONTAINS '给予' && <context.message> CONTAINS '时长为' {
+          - determine cancelled
+        }            
+        - if <context.message> CONTAINS '已添加到你的银行账户' {
+          - determine cancelled
+        }       
+        - if <context.message> CONTAINS 'left the game' {
+          - determine cancelled
+        }      
+        - if <context.message> CONTAINS 'join the game' {
+          - determine cancelled
+        }                    
+        - if <context.message> CONTAINS 'Sorry, but you can't use that here' {
+          - determine cancelled
+        }             
+    on ? command:
+      - determine cancelled   
+    on bukkit command:
+      - determine cancelled
+    on bukkit:? command:
+      - determine cancelled      
+    on help command:
+      - execute as_op "bs core"
+      - determine cancelled
+    on bukkit:help command:
+      - determine cancelled        
+    on bukkit:pl command:
+      - determine cancelled  
+    on plugins command:
+      - determine cancelled            
+    on bukkit:plugins command:
+      - determine cancelled        
+    on pl command:
+      - determine cancelled        

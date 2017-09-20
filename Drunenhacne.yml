@@ -1,0 +1,268 @@
+XDrunenhance_CMD:
+  type: command
+  name: xdrune
+  description: 符文强化
+  usage: /xdrune
+  aliases:
+  - xdre
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+  - inventory open d:in@XDrunenhance_GUI
+
+
+
+
+XDrunenhance_cfg:
+  type: yaml data
+  rune_dmg:
+    I:
+      Lv1:
+        mtrlcost: 2
+        cbcost: 2
+        
+      Lv2:
+        mtrlcost: 3
+        cbcost: 2
+      Lv3:
+        mtrlcost: 3
+        cbcost: 3
+  rune-dfs:
+
+  rune-health:
+XDrunenhance_Core:
+  type: world
+  debug: false
+  handleconfirm:
+  # flag.recost1/result
+  - flag <player> XDrunenhance_opening
+  # 定义 rune 开启确认菜单
+  - flag <player> rune:%rune%
+  - inventory open d:in@XDrunenhance_GUI_cfm
+  - flag <player> rune:!  
+  - flag <player> XDrunenhance_opening:!
+  events:
+    on player closes inventory:
+      - if <c.inventory.title> == <in@XDrunenhance_GUI.title> {
+        - if <player.has_flag[XDrunenhance_opening]> queue clear
+        # I未使用 fixcost1 并回收
+        - flag <player> recost1:!
+        # I未使用 fix 并回收
+        - flag <player> result:!        
+        - define rune <c.inventory.list_contents.get[12]>
+        - give %rune%
+        - queue clear
+      }
+      - if <c.inventory.title> == <in@XDrunenhance_GUI_cfm.title> {
+        - if <player.has_flag[XDrunenhance_opening]> queue clear
+        # II未使用 fixcost1 并回收
+        - flag <player> recost1:!
+        # II未使用 fix 并回收
+        - flag <player> rune:!
+        - define rune <c.inventory.list_contents.get[12]>
+        - give %rune%
+        - queue clear
+      }      
+      - if <c.inventory.title> == <in@XDrunenhance_GUI_SUCS.title> {
+          - if <player.has_flag[XDrunenhance_opening]> queue clear
+          - execute as_op "rpginv item <player.name> <player.flag[result]>"
+          - flag <player> result:!
+      }            
+    on player clicks in in@XDrunenhance_GUI_FAIL:
+        - determine cancelled
+    on player clicks in in@XDrunenhance_GUI_SUCS:
+        # flag.result
+        - determine passively cancelled
+        - if <c.raw_slot> == 5 {
+          - execute as_op "rpginv item <player.name> <player.flag[result]>"
+          - flag <player> result:!
+          - flag <player> XDrunenhance_opening
+          - inventory close
+          - flag <player> XDrunenhance_opening:!
+        }
+                       
+    on player clicks in in@XDrunenhance_GUI:
+        - if <c.item> == i@diamond_hoe,1[display_name=&ss8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true] {
+          - determine cancelled
+        }
+        - if <c.raw_slot> == "16" {
+          - determine passively cancelled
+          - define rune <c.inventory.list_contents.get[12]>
+          - if %rune% == "null" {
+            - inventory close
+            - title "subtitle:<&8>[ <&6>请放入要强化的符文 <&8>]" fade_in:1s stay:0s fade_out:1s targets:<player>
+            - queue clear
+          }       
+          - define runename <def[rune].display.aftet[<&rb><&ss>]>
+          - define tier <def[rune].display.after[<&ss>8<&lb><&ss>6]>
+          # I级符文
+          - choose %runename%:
+            - case "c攻击符文":
+              - if <def[rune].display> !CONTAINS "+" {
+                - define lv 0
+              } else {
+                - define lv <def[rune].display.after[+]>
+              }
+              - define mtrlcost <s@XDrunenhance_cfg.yaml_key[rune_dmg.tier.%tier%.Lv%lv%.mtrlcost]>
+              - flag <player> XDRE_mtrlcost:%mtrlcost%
+              - define cbcost <s@XDrunenhance_cfg.yaml_key[rune_dmg.tier.%tier%.Lv%lv%.cbcost]>
+              - flag <player> XDRE_cbcost:%cbcost%
+              - inject locally handleconfirm
+
+            - case "2防御符文":
+            - case "d生命符文":
+            - case "2速度符文":
+            - case "6暴击符文":
+            - case "9跳跃符文":
+            - 
+          - if %runename% CONTAINS "<&8>[<&6>I<&8>]" {
+            # I级生命符文
+            - if %runename% CONTAINS "生命符文" {
+              - if %runename% !CONTAINS "+" {
+              # 定义强化价格 flag.recost1
+              # 定义强化结果 flag.result
+              # flag.recost1/result
+                - flag <player> recost1:1
+                - flag <player> result:health-rune11
+                - inject locally handleconfirm
+              } else if %runename% CONTAINS "+1" {
+                - flag <player> recost1:3
+                - flag <player> result:health-rune12
+                - inject locally handleconfirm
+              } else if %runename% CONTAINS "+2" {
+                - flag <player> recost1:5
+                - flag <player> result:health-rune13
+                - inject locally handleconfirm
+              } 
+            } else if %runename% CONTAINS "攻击符文" {
+              - if %runename% !CONTAINS "+" {
+              # 定义强化价格 flag.recost1
+              # 定义强化结果 flag.result
+              # flag.recost1/result
+                - flag <player> recost1:1
+                - flag <player> result:damage-rune11
+                - inject locally handleconfirm
+              } else if %runename% CONTAINS "+1" {
+                - flag <player> recost1:3
+                - flag <player> result:damage-rune12
+                - inject locally handleconfirm
+              } else if %runename% CONTAINS "+2" {
+                - flag <player> recost1:5
+                - flag <player> result:damage-rune13
+                - inject locally handleconfirm
+              } 
+            }
+          }
+        }
+
+    on player clicks in in@XDrunenhance_GUI_cfm:
+        # flag.recost1/result
+        - determine passively cancelled
+        - if <c.raw_slot> == 16 {
+          # 获取flag.recost1并回收
+          - define recost1 <player.flag[recost1]>
+          - flag <player> recost1:!
+          - if <player.inventory.contains.display[strict:<&f>摩根银币].quantity[%recost1%]> {
+            - take bydisplay:<&f>摩根银币 quantity:%recost1%
+            - flag <player> XDrunenhance_opening
+            - inventory open d:in@XDrunenhance_GUI_SUCS
+            - flag <player> XDrunenhance_opening:!  
+          } else {
+            - flag <player> tip:XDrunenhance_GUI_tip1
+            - inventory open d:in@XDrunenhance_GUI_FAIL
+            - flag <player> tip:!
+          }
+        }
+      
+XDrunenhance_GUI:
+  type: inventory
+  inventory: CHEST
+  title: "<&8>[ 符文强化 <&8>]"
+  size: 27
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+  slots:
+    - "[15] [15] [5] [15] [15] [15] [15] [15] [15]"
+    - "[15] [15] [] [15] [15] [15] [i@XDrunenhance_GUI_enhance1] [15] [15]"
+    - "[15] [15] [5] [15] [15] [15] [15] [15] [15]"  
+
+XDrunenhance_GUI_cfm:
+  type: inventory
+  inventory: CHEST
+  title: "<&8>[ 符文强化·确认 <&8>]"
+  size: 27
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+  slots:
+    - "[15] [15] [5] [15] [15] [15] [15] [15] [15]"
+    - "[15] [15] [<player.flag[rune]>] [15] [15] [15] [i@XDrunenhance_GUI_enhance2] [15] [15]"
+    - "[15] [15] [5] [15] [15] [15] [15] [15] [15]"  
+
+XDrunenhance_GUI_FAIL:
+  type: inventory
+  inventory: DISPENSER
+  title: "<&8>[ 符文·强化失败 <&8>]"
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+  slots:
+    - "[15] [15] [15]"
+    - "[15] [i@<player.flag[tip]>] [15]"
+    - "[15] [15] [15]"  
+
+XDrunenhance_GUI_SUCS:
+  type: inventory
+  inventory: DISPENSER
+  title: "<&8>[ 符文·强化成功 <&8>]"
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    get: i@diamond_hoe,36[display_name=<&8><&lb> <&6>获取·强化结果 <&8><&rb>;durability=36;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    1: i@sp1
+  slots:
+    - "[15] [15] [15]"
+    - "[15] [get] [15]"
+    - "[15] [15] [15]"
+
+
+XDrunenhance_GUI_enhance1:
+  type: item
+  material: i@145
+  display name: <&7>[ <&6>强化 <&7>]
+  lore:
+  - <&7>▽ 绿色空槽<&co>
+  - <&7>○ 请放入 <&6>符文
+  no_id: true
+
+XDrunenhance_GUI_enhance2:
+  type: item
+  material: i@145
+  display name: <&7>[ <&6>确认·强化 <&7>]
+  lore:
+  - <&7>▽ 本次强化须花费<&co>
+  - <&7>○ <&f>摩根银币 <&7>x<player.flag[recost1]>
+  no_id: true
+
+XDrunenhance_GUI_tip1:
+  type: item
+  material: i@403
+  display name: <&7>[ <&6>提示 <&7>]
+  lore:
+  - <&7>▽ 所需铜币不足
+  no_id: true    
+
+    

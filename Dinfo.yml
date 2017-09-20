@@ -1,0 +1,28 @@
+DChargeInfo:      
+    type: world
+    debug: false    
+    events:
+      on xdnac command:
+      - determine passively cancelled 
+      - narrate '<&6><&m><&l>一一一一一一一一一一一一一一一一一一一一一一一一一一一一'
+      - narrate ''
+      - narrate '  <&c><&l>充值网址: <&6><&l>http://pay.xdawn.me  <&7>(直接点击即可打开)'
+      - narrate ''
+      - narrate '<&6><&m><&l>一一一一一一一一一一一一一一一一一一一一一一一一一一一一'
+Dstat:
+  type: procedure
+  definitions: "type"
+  script:
+    - choose "%type%":
+      - case qevy:
+        - if !<player.has_flag[stat_fevy]> {
+          - determine 0
+        } else {
+          - determine <player.flag[stat_fevy]>
+        }
+      - case qspe:
+        - if !<player.has_flag[stat_fspe]> {
+          - determine 0
+        } else {
+          - determine <player.flag[stat_fspe]>
+        }        

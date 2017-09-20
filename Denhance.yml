@@ -1,0 +1,518 @@
+XDenhance_CMD:
+  type: command
+  name: xdenhance
+  description: 强化
+  usage: /xdenhance
+  aliases:
+  - xd
+  # the command.
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+    - inventory open d:in@XDenhance_GUI
+
+XDenhance_cfg:
+  type: yaml data
+  tier:
+    '7': 
+      uprate: 
+        damage: 0.02
+      lvlimit: 
+        lv1: 
+          mtrlcost: 2
+          cbcost: 1
+        lv2: 
+          mtrlcost: 2        
+          cbcost: 2
+        lv3: 
+          mtrlcost: 3        
+          cbcost: 2
+        lv4: 
+          mtrlcost: 3        
+          cbcost: 2
+        lv5: 
+          mtrlcost: 5        
+          cbcost: 3           
+    '2': #green
+      uprate: 
+        damage: 0.03
+      lvlimit: 
+        lv1: 
+          mtrlcost: 2
+          cbcost: 1
+        lv2: 
+          mtrlcost: 2        
+          cbcost: 2
+        lv3: 
+          mtrlcost: 3        
+          cbcost: 2
+        lv4: 
+          mtrlcost: 3        
+          cbcost: 2
+        lv5: 
+          mtrlcost: 3        
+          cbcost: 3        
+        lv6: 
+          mtrlcost: 5        
+          cbcost: 3    
+        lv7: 
+          mtrlcost: 5        
+          cbcost: 3  
+        lv8: 
+          mtrlcost: 5        
+          cbcost: 3  
+        lv9: 
+          mtrlcost: 5        
+          cbcost: 3  
+        lv10: 
+          mtrlcost: 5        
+          cbcost: 3                                                  
+  material:
+    '2黑铁陨星':
+        upprogress: '1'
+    '3煅火精钢':
+        upprogress: '3'        
+    # green: 
+    #   lvlimit: 3
+    #     lv1: 3
+    #     lv2: 5
+    #     lv3: 8
+    #   uprate: 0.5
+    #   lvlimit: 4
+    #   forgerate: 0.5    
+    #   blue: 1.2
+    #   purple: 1.5
+    #   gold: 2  
+    #   red: 3 
+
+
+
+XDenhance:
+  type: world
+  # 初次强化，输出强化后结果，调用确认菜单
+  # enhance encost1 仍然存在
+  handleFirstEn:
+    - define display "<def[wpn].display> <&2>+1"
+    - define dflt "<>"
+    - define eft1 "<&7>◇ 攻击: <&c>+1"
+    - adjust %wpn% "display_name:%display%" save:R0
+    - adjust <entry[R0].result> "lore:<def[wpn].lore.insert[%dflt%].at[1].insert[%eft1%].at[2].insert[<&7>].at[3]>" save:R1
+    - define result <entry[R1].result>
+    - flag <player> enhance:%result%
+    - inject locally handleconfirm
+  # I级强化，输出强化后结果，调用确认菜单
+  # enhance encost1 仍然存在  
+  handleLvI:
+    - adjust %wpn% "lore:<def[wpn].lore.set[%enlore%].at[1].set[%eft1%].at[2]>" save:R1
+    - define result <entry[R1].result>
+    - flag <player> enhance:%result%
+    - inject locally handleconfirm
+  handleLvUP:
+    - adjust %wpn% "lore:<def[wpn].lore.set[%enlore%].at[1].set[%eft1%].at[2]>" save:R1
+    - adjust <entry[R1].result> "display_name:%display%" save:R1
+    - define result <entry[R1].result>
+    - flag <player> enhance:%result%
+    - inject locally handleconfirm
+  # 调用确认菜单，转移mtrl wpn数据并回收
+  # enhance encost1 仍然存在  
+  handleconfirm:
+    - flag <player> mtrl:%mtrl%
+    - flag <player> wpn:%wpn%
+    - flag <player> XDenhance_opening
+    - inventory open d:in@XDenhance_GUI2
+    - flag <player> XDenhance_opening:!
+    - flag <player> mtrl:!
+    - flag <player> wpn:!
+
+  events:
+      on player damages entity:
+        - if <player.has_flag[Ddeath_nodamage]> {
+          - actionbar "<&7>[ <&8>疲劳状态将在 <&2><player.flag[Ddeath_nodamage].expiration.time.seconds>s <&8>后结束<&7>]"
+          - determine cancelled
+        }
+        - define wpn <c.damager.item_in_hand>
+        - define enloc <def[wpn].lore.find_partial[冶炼进度]>
+        - if %enloc% !== -1 {
+          - define dmgloc <def[wpn].lore.find_partial[攻击<&co>]>
+          - define dmgadd <def[wpn].lore.get[%dmgloc%].after[+]>
+          - determine <c.final_damage.add[%dmgadd%]>
+        }
+        
+      on player closes inventory:
+        # 内部调用结果菜单，不补偿物品
+        - if <player.has_flag[XDenhance_opening]> queue clear
+        # 结果菜单关闭，补偿物品
+        - if <c.inventory.title> == <in@XDenhance_GUI_SUCS.title> {
+          - define result <c.inventory.list_contents.get[5]>
+          - give %result%
+        # 强化菜单(意外)关闭，补偿物品
+        } else if <c.inventory.title> == <in@XDenhance_GUI.title> {
+          - define wpn <c.inventory.list_contents.get[11]>
+          - define mtrl <c.inventory.list_contents.get[13]>
+          - give %wpn%
+          - give %mtrl%
+        # 强化菜单2(意外)关闭，补偿物品
+        # 未使用，回收 enhance encost1
+        } else if <c.inventory.title> == <in@XDenhance_GUI2.title> {
+          - define wpn <c.inventory.list_contents.get[11]>
+          - define mtrl <c.inventory.list_contents.get[13]>
+          - give %wpn%
+          - give %mtrl%
+          - flag <player> encost1:!
+          - flag <player> enhance:!
+        }
+      on player clicks in in@XDenhance_GUI_FAIL:
+        - if <c.raw_slot> == 8 {
+          - inventory open d:in@XDenhance_GUI
+        }        
+        - determine cancelled
+      on player clicks in in@XDenhance_GUI_SUCS:
+        - if <c.raw_slot> == 8 {
+          - inventory open d:in@XDenhance_GUI
+        }
+        - if li@sp1|sp5|sp8|sp15 CONTAINS <c.item.scriptname> {
+          - determine passively cancelled
+        }
+      on player clicks in in@XDenhance_GUI2:
+        - determine passively cancelled
+        - if <c.raw_slot> == "16" {
+          # 使用 encost1 
+          - define encost1 <player.flag[encost1]>
+          - flag <player> encost1:!
+          - if <player.inventory.contains.display[strict:<&f>摩根银币].quantity[%encost1%]> {
+            # 使用 enhance
+            - take bydisplay:<&f>摩根银币 quantity:%encost1%
+            - flag <player> xderesult:<c.inventory.list_contents.get[13]>
+            - flag <player> XDenhance_opening
+            - inventory open d:in@XDenhance_GUI_SUCS
+            - flag <player> XDenhance_opening:!
+            - flag <player> xderesult:!
+          } else {
+            - flag <player> tip:XDenhance_GUI_tip3
+            - inventory open d:in@XDenhance_GUI_FAIL
+            - flag <player> tip:3
+          }
+          # 判定完成后回收 enhance encost1
+          
+        }
+      on player clicks in in@XDenhance_GUI:
+        - if <c.item> == i@diamond_hoe,1[display_name=&ss8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true] {
+          - determine cancelled
+        }        
+        - if li@sp1|sp5|sp8|sp15 CONTAINS <c.item.scriptname> {
+          - determine passively cancelled
+        }
+        # 点击强化按钮
+        - if <c.raw_slot> == "16" {
+          
+          - determine passively cancelled
+          # 武器
+          - define wpn <c.inventory.list_contents.get[11]>
+         
+          # 强化材料
+          - define mtrl <c.inventory.list_contents.get[13]>
+          
+          - if %wpn% == "null" || %mtrl% == "null" {
+            - inventory close
+            - title "subtitle:<&8>[ <&6>请放入要强化的武器和材料... <&8>]" fade_in:1s stay:0s fade_out:1s targets:<player>
+            - queue clear
+          }
+
+          - if li@iron_sword !CONTAINS <def[wpn].material.name> {
+            - inventory close
+            - title "subtitle:<&8>[ <&6>此物品不可强化 <&8>]" fade_in:1s stay:0s fade_out:1s targets:<player>
+            - queue clear
+          }
+          - if <def[mtrl].quantity> > 1 {
+              - inventory close
+              - title "subtitle:<&8>[ <&6>每次请放入 1 个强化材料 <&8>]" fade_in:1s stay:0s fade_out:1s targets:<player>
+              - queue clear
+              
+          }
+          - define display <def[wpn].display>
+          - define mtrldisplay <def[mtrl].display.after[<&ss>]>
+          - define tier <def[display].char_at[2]>
+          # 强化增量
+          - define upprogress <s@XDenhance_cfg.yaml_key[material.%mtrldisplay%.upprogress]>
+          # 名称内含有+
+          - if <def[wpn].display> CONTAINS "+" {
+            # 目前强化等级
+            - define lv <def[display].after[+]>
+            #
+            - define lvloc <def[wpn].lore.find_partial[冶炼等级]>
+            - define lvprogress <def[wpn].lore.get[%lvloc%].after[<&ss>r<&ss>a<&ss>].add[%upprogress%]> 
+            - define lvtarget <s@XDenhance_cfg.yaml_key[tier.%tier%.lvlimit.lv%lv%.mtrlcost]>
+            - while <def[lvprogress].is[OR_MORE].than[%lvtarget%]> {
+              - define lvprogress <def[lvprogress].sub[%lvtarget%]>
+              - narrate '%lvprogress% lvprogress'
+              - define lv <def[lv].add[1]>
+              - narrate '%lv% lv'
+              - define lvtarget <s@XDenhance_cfg.yaml_key[tier.%tier%.lvlimit.lv%lv%.mtrlcost]>
+              - narrate '%lvtarget% lvtarget'
+            }           
+
+            - narrate <def[lvprogress].is[OR_MORE].than[%lvtarget%]>
+            - narrate '<def[lvprogress]> %lvtarget%'
+
+            - define dmgloc <def[wpn].lore.find_partial[近战攻击]>
+            - define dmgori <def[wpn].lore.get[%dmgloc%].after[<&sp><&ss>0<&ss>2<&ss>r<&ss>a].before[<&ss>7-]>
+            - define dmgupgraderate <s@XDenhance_cfg.yaml_key[tier.%tier%.uprate.damage]>
+            - define dmgresult <def[dmgori].mul[%dmgupgraderate%].mul[%lv%].round_to[1]>
+            
+            - define progresspc <def[lvprogress].div[%lvtarget%].div[0.05].round>
+
+            - define bar li@<&2>▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|
+            - define bar <def[bar].set[<&7>].at[%progresspc%].unseparated>
+            - define bar '<&7>▽ 冶炼进度[<def[bar]><&7>]<&ss>r<&ss>a<&ss>%lvprogress%'              
+            
+            - narrate '%lvtarget% lvtarget'
+            - narrate '%lvprogress% lvprogress'
+
+            - define dmgresult <def[dmgori].mul[%dmgupgraderate%].mul[%lv%].round_to[1]>
+            - define dmglore '<&7>◇ 攻击<&co> <&a>+<def[dmgresult]>'     
+            - define enlore <def[wpn].lore.set[%bar%].at[%enloc%].set[%dmglore%].at[2]>   
+            - adjust <def[wpn]> 'lore:%enlore%' save:R1         
+            - adjust <entry[R1].result> 'display_name:<def[wpn].display.before[+]>+%lv%' save:R1            
+          # 不含+
+          } else {
+            - define lv 1
+            - define lvprogress %upprogress%
+            - define lvtarget <s@XDenhance_cfg.yaml_key[tier.%tier%.lvlimit.lv%lv%.mtrlcost]>
+            - while <def[lvprogress].is[OR_MORE].than[%lvtarget%]> {
+              - define lvprogress <def[lvprogress].sub[%lvtarget%]>
+              - define lv <def[lv].add[1]>
+              - define lvtarget <s@XDenhance_cfg.yaml_key[tier.%tier%.lvlimit.lv%lv%.mtrlcost]>
+            }     
+
+            - narrate %lvprogress%
+
+            - define dmgloc <def[wpn].lore.find_partial[近战攻击]>
+            - define dmgori <def[wpn].lore.get[%dmgloc%].after[<&sp><&ss>0<&ss>2<&ss>r<&ss>a].before[<&ss>7-]>
+            - define dmgupgraderate <s@XDenhance_cfg.yaml_key[tier.%tier%.uprate.damage]>
+            - narrate %lv%
+            - narrate %dmgupgraderate%
+            
+
+            - define progresspc <def[lvprogress].div[%lvtarget%].div[0.05].round>
+            - define bar li@<&2>▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|▏|
+            - define bar <def[bar].set[<&7>].at[%progresspc%].unseparated>
+            - define bar '<&7>▽ 冶炼进度[<def[bar]><&7>]<&ss>r<&ss>a<&ss>%lvprogress%'              
+                    
+            - define dmgresult <def[dmgori].mul[%dmgupgraderate%].mul[%lv%].round_to[1]>                    
+            - define dmglore '<&7>◇ 攻击<&co> <&a>+<def[dmgresult]>'   
+
+            - define enlore <def[wpn].lore.insert[%bar%].at[1].insert[%dmglore%].at[2].insert[<&7>].at[3]>
+            - adjust <def[wpn]> 'lore:%enlore%' save:R1
+            - adjust <entry[R1].result> 'display_name:<def[wpn].display><&sp><&2>+1' save:R1                                  
+          }        
+        
+          - flag <player> xderesult:<entry[R1].result>
+          
+          - flag <player> XDenhance_opening
+          - flag <player> encost1:<s@XDenhance_cfg.yaml_key[tier.%tier%.lvlimit.lv%lv%.cbcost]>
+          - define xderesult <entry[R1].result>
+          - flag <player> xdeorigin:<def[wpn]>
+          - inventory open d:in@XDenhance_GUI2
+          - flag <player> XDenhance_opening:!
+          - flag <player> mtrl:!
+          - flag <player> wpn:!          
+        }
+              - 
+              # - if %lv% == "1" {
+              #   # 确定lore
+              #   - flag <player> encost1:2
+              #   - define enlore "<&7>▽ 冶炼等级: <&7><&chr[262b]>x<&2>2 <&8>[<&6>5<&8>]"
+              #   - define eft1 "<&7>◇ 攻击: <&c>+2"
+              #   - inject locally handleLvI
+              # } else if %lv% == "2" {
+              #   - flag <player> encost1:2
+              #   - define enlore "<&7>▽ 冶炼等级: <&7><&chr[262b]>x<&2>3 <&8>[<&6>5<&8>]"
+              #   - define eft1 "<&7>◇ 攻击: <&c>+3"
+              #   - inject locally handleLvI
+              # } else if %lv% == "3" {
+              #   - flag <player> encost1:3
+              #   - define enlore "<&7>▽ 冶炼等级: <&7><&chr[262b]>x<&2>4 <&8>[<&6>5<&8>]"
+              #   - define eft1 "<&7>◇ 攻击: <&c>+4"
+              #   - inject locally handleLvI
+              # } else if %lv% == "4" {
+              #   - flag <player> encost1:3
+              #   - define enlore "<&7>▽ 冶炼等级: <&7><&chr[262b]>x<&2>1 <&8>[<&6>10<&8>]"
+              #   - define eft1 "<&7>◇ 攻击: <&c>+5"
+              #   - define display '<def[wpn].display.before[+]><&2>+2'
+              #   - inject locally handleLvUP
+              # }
+
+            # II级
+          #   } else if <def[wpn].display> CONTAINS "+2" {
+          #     - queue clear
+          #   # III级
+          #   } else if <def[wpn].display> CONTAINS "+3" {
+          #     - queue clear
+          #   # 首次强化，定义花费
+          #   } else {
+          #     - flag <player> encost1:1
+          #     - inject locally handleFirstEn
+          #   }
+          # } else {
+          #     - inventory close
+          #     - title "subtitle:<&3>○ <&7>请放入正确的强化材料 <&3>○" fade_in:1s stay:0s fade_out:1s targets:<player>
+          #     - queue clear
+          # }          
+        
+
+    
+
+
+
+      
+
+XDenhance_GUI_FAIL:
+  type: inventory
+  inventory: DISPENSER
+  title: "<&8>[ 强化失败 <&8>]"
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+    back: i@diamond_hoe,1[display_name=<&ss>8;durability=73;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]     
+  slots:
+    - "[15] [15] [15]"
+    - "[15] [i@<player.flag[tip]>] [15]"
+    - "[15] [back] [15]"        
+XDenhance_GUI_SUCS:
+  type: inventory
+  inventory: DISPENSER
+  title: "<&8>[ 强化成功 <&8>]"
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+    back: i@diamond_hoe,1[display_name=<&ss>8;durability=73;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]    
+  slots:
+    - "[15] [15] [15]"
+    - "[15] [<player.flag[xderesult]>] [15]"
+    - "[15] [back] [15]"
+XDenhance_GUI:
+  type: inventory
+  inventory: CHEST
+  title: "<&8>[ 武器强化 <&8>]"
+  size: 27
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+    
+  procedural items:
+    - adjust <i@XDenhance_GUI_cfm> 'unbreakable:true' save:enhance
+    - adjust <entry[enhance].result> 'flags:li@HIDE_UNBREAKABLE|HIDE_ATTRIBUTES' save:enhance
+    - define list li@|i@air|i@air|<entry[enhance].result>
+    - determine <def[list]>
+  slots:
+    - "[15] [5] [15] [1] [15] [15] [15] [15] [15]"
+    - "[15] [] [15] [] [15] [15] [] [15] [15]"
+    - "[15] [5] [15] [1] [15] [15] [15] [15] [15]"     
+XDenhance_GUI2:
+  type: inventory
+  inventory: CHEST
+  title: "<&8>[ 武器强化 <&8>]"
+  size: 27
+  definitions:
+    5: i@sp5
+    15: i@diamond_hoe,1[display_name=<&ss>8;durability=1;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+    8: i@sp8
+    1: i@sp1
+    rightarrow: i@diamond_hoe,1[display_name=<&ss>8;durability=72;flags=li@HIDE_ATTRIBUTES|HIDE_UNBREAKABLE;unbreakable=true]
+  procedural items:
+    - adjust <i@XDenhance_GUI_cfm2> 'unbreakable:true' save:enhance
+    - adjust <entry[enhance].result> 'flags:li@HIDE_UNBREAKABLE|HIDE_ATTRIBUTES' save:enhance
+    - define costlore '<&7>○<&sp><&6>摩根银币<&sp><&7>x<player.flag[encost1]>'
+    - define resultlore <entry[enhance].result.lore.set[%costlore%].at[2]>
+    - adjust <entry[enhance].result> 'lore:%resultlore%' save:enhance
+    - define list li@<def[xderesult]>|<entry[enhance].result>
+    - determine <def[list]>
+  slots:
+    - "[15] [15] [15] [15] [15] [15] [15] [15] [15]"
+    - "[15] [<player.flag[xdeorigin]>] [rightarrow] [<player.flag[xderesult]>] [15] [15] [] [15] [15]"
+    - "[15] [15] [15] [15] [15] [15] [15] [15] [15]"
+
+XDenhance_GUI_cfm:
+  type: item
+  material: i@diamond_hoe,31
+  display name: <&7>[ <&6>强化 <&7>]
+  lore:
+  - <&7>▽ 绿色栏位<&co>
+  - <&7>○ 请放入 <&6>武器
+  - <&7>
+  - <&7>▽ 橙色栏位<&co>
+  - <&7>○ 请放入 <&6>强化材料
+  no_id: true
+
+XDenhance_GUI_cfm2:
+  type: item
+  material: i@diamond_hoe,30
+  display name: <&7>[ <&6>确认·强化 <&7>]
+  lore:
+  - <&7>▽ 本次强化须花费<&co>
+  - <&7>○ <&6>摩根银币 <&7>x<player.flag[encost1]>
+  no_id: true  
+XDenhance_GUI_back:
+  type: item
+  material: i@160:5
+  display name: <&7>[ <&6>返回 <&7>]
+  no_id: true  
+
+XDenhance_GUI_tip1:
+  type: item
+  material: i@403
+  display name: <&7>[ <&6>提示 <&7>]
+  lore:
+  - <&7>▽ 当前等级的 <&2><&chr[262b]> <&7>已全部点亮
+  - <&7>○ 要继续强化，需要使用 <&8>[<&6>淬火典籍<&8>]
+  - <&7>○ 将武器/装备提升至下一等级
+  - <&7>
+  - <&7>○ 在 <&6>橙色栏位 <&7>内放入<&8>[<&6>淬火典籍<&8>]
+  - <&7>○ 进行强化，即可将武器提升至下一等级
+
+XDenhance_GUI_tip2:
+  type: item
+  material: i@403
+  display name: <&7>[ <&6>提示 <&7>]
+  lore:
+  - <&7>▽ 灰色等级的装备
+  - <&7>○ 如<&8>[<&7>黑铁短刀<&8>]  
+  - <&7>○ 最多只可强化至 II 级
+  no_id: true
+XDenhance_GUI_tip3:
+  type: item
+  material: i@403
+  display name: <&7>[ <&6>提示 <&7>]
+  lore:
+  - <&7>▽ 所需货币不足
+  no_id: true  
+sp1:
+  type: item
+  material: i@160:1    
+sp1:
+  type: item
+  material: i@160:1
+sp5:
+  type: item
+  material: i@160:5  
+sp8:
+  type: item
+  material: i@160:8    
+space:
+  type: item
+  material: i@diamond_hoe:27
+
+sp15:
+  type: item
+  material: i@160:15  

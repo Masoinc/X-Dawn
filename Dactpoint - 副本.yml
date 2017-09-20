@@ -1,0 +1,6 @@
+Dtest:
+  type: world
+  events:
+    on dtest command:
+      - adjust <player.enderchest> "title:test" save:A1
+      - inventory open d:<entry[A1].result>

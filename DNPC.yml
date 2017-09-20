@@ -1,0 +1,480 @@
+DNPC_Tsk:
+  type: task
+  v1start:
+    - if <player.has_flag[playing]> {
+      - actionbar "<&7>[ <&6>XDawn <&7>]剧情播放中..."
+      - queue clear
+    }
+    - flag <player> playing duration:60s
+    - title "title:<&8>[ <&3><&dq>基地<&dq> 传送舱室 <&8>]" fade_in:0t stay:50t fade_out:10t targets:<player>
+    - wait 70t      
+    - title "subtitle:<&7>任务代号 Nora-I" fade_in:0t stay:25t fade_out:10t targets:<player>
+    - wait 35t
+    - title "subtitle:<&7>任务目标" fade_in:0t stay:25t fade_out:10t targets:<player>    
+    - wait 35t
+    - title "subtitle:<&7>进入代号为 X 的中古世纪时空" fade_in:0t stay:25t fade_out:10t targets:<player>    
+    - wait 35t      
+    - title "subtitle:<&7>获取冶炼技术与远古魔法知识" fade_in:0t stay:25t fade_out:10t targets:<player>               
+    - wait 35t
+    - title "title:<&6>很好" fade_in:0t stay:25t fade_out:10t targets:<player>
+    - wait 35t
+    - title "title:<&6>这次任务的保密等级是绝密" fade_in:0t stay:25t fade_out:10t targets:<player>    
+    - wait 35t    
+    - title "title:<&6>基地除必要的信息外" fade_in:0t stay:25t fade_out:10t targets:<player>       
+    - wait 35t
+    - title "title:<&6>不会给你提供任何支援" fade_in:0t stay:25t fade_out:10t targets:<player>       
+    - wait 35t    
+    - title "title:<&6>取得阶段性进展后，务必报告基地" fade_in:0t stay:25t fade_out:10t targets:<player>
+    - wait 50t
+    - execute as_server "effect <player.name> minecraft:blindness 32 0"
+    - wait 60t
+    - title "subtitle:<&7>Identity Confirmed" fade_in:0t stay:25t fade_out:10t targets:<player> 
+    - wait 50t
+    - title "subtitle:<&7>Supply System Actived." fade_in:0t stay:25t fade_out:10t targets:<player> 
+    - wait 50t               
+    - title "subtitle:<&7>Welcome, Agent.IX" fade_in:0t stay:25t fade_out:10t targets:<player>   
+    - wait 50t
+    - title "title:<&6>This is a Masonic Project"  fade_in:20t stay:50t fade_out:10t targets:<player>     
+    - wait 80t
+    - title "title:<&6>[Designed By 9545(or called Masonic_9)]"   fade_in:20t stay:50t fade_out:10t targets:<player>   
+    - wait 80t
+    - title "title:<&7>VoidXraft & XDawn 2016-2017" "subtitle:<&7>Thanks for playing" fade_in:20t stay:50t fade_out:10t targets:<player> 
+    - wait 80t
+    - title "subtitle:<&7>Transporting..." fade_in:0t stay:50t fade_out:10t targets:<player>    
+    - wait 80t
+    - execute as_op "mv tp Volumn1"
+    - wait 35t
+    - title "subtitle:<&7>连接已中断..." fade_in:0t stay:50t fade_out:10t targets:<player> 
+    - execute as_op "mm i give <player.name> v1map1 1"        
+    - flag <player> DNPC_mq_process:v1q0
+    - execute as_op "XDsb refresh"
+  v1stop:
+    - title "title:<&8>[ <&6>枫雪村 <&8>]" fade_in:0t stay:50t fade_out:10t targets:<player>
+    - wait 70t     
+    - title "subtitle:<&7>代号为 Nora-I 的任务已取得阶段性进展" fade_in:0t stay:25t fade_out:10t targets:<player>
+    - wait 35t    
+    - title "title:<&6>很好，你的能力令人惊叹" fade_in:0t stay:25t fade_out:10t targets:<player>                  
+    - wait 35t    
+    - title "title:<&6>基地已经取得了生命符文的副本" fade_in:0t stay:25t fade_out:10t targets:<player>  
+    - wait 35t    
+    - title "title:<&6>继续你的探险，不要暴露身份" fade_in:0t stay:25t fade_out:10t targets:<player>  
+    - wait 35t    
+    - title "subtitle:<&7>是。" fade_in:0t stay:25t fade_out:10t targets:<player>      
+    - wait 35t        
+    - title "subtitle:<&7>连接已中断..." fade_in:0t stay:50t fade_out:10t targets:<player>  
+    - firework <player.location> star primary:yellow fade:white
+    - wait 70t
+    - title "title:<&6>第一章-枫雪村的故事 已完成" "subtitle: 获得称号 <&7>[ <&a>枫雪近卫 <&7>]" fade_in:10t stay:70t fade_out:10t targets:<player> 
+    - announce "<&8>[ <&6>XDawn <&8>]<&3> <player.name> <&7>刚刚完成了 <&6>第一章-枫雪村的故事<&7> !"  
+    - execute as_server "pex user <player.name> add deluxetags.tag.l1"
+    - execute as_server "tags set <player.name> l1"    
+    - wait 90t   
+    - title "subtitle:<&7>枫雪村的任务刚刚结束" fade_in:0t stay:25t fade_out:10t targets:<player>      
+    - wait 35t    
+    - title "subtitle:<&7>那么下一个地区就是布莱登堡了" fade_in:0t stay:25t fade_out:10t targets:<player>      
+    - wait 35t    
+    - title "subtitle:<&7>真正的挑战，恐怕才刚刚开始。" fade_in:0t stay:25t fade_out:10t targets:<player>     
+  v2start:
+    - if <player.has_flag[playing]> {
+      - actionbar "<&7>[ <&6>XDawn <&7>]剧情播放中..."
+      - queue clear
+    }
+    - flag <player> playing duration:60s
+    - wait 150t
+    - title "subtitle:<&7>这里就是布莱登堡地区了" fade_in:0t stay:25t fade_out:10t targets:<player>
+    - wait 35t
+    - title "subtitle:<&7>嗯...我好像听见有人求救" fade_in:0t stay:25t fade_out:10t targets:<player>   
+    - wait 35t
+    - title "subtitle:<&7>搞不好是个流浪的法师呢" fade_in:0t stay:25t fade_out:10t targets:<player>            
+    - wait 35t
+    - title "subtitle:<&7>还是先去看看吧" fade_in:0t stay:25t fade_out:10t targets:<player>       
+  finishtask:
+    - inventory close
+    - title "title:<&8>[ <&6><&l>XDawn <&8>]" "subtitle:<&6>任务已完成！" fade_in:1s stay:0s fade_out:1s targets:<player>  
+    - firework <player.location> star primary:yellow fade:white   
+    - execute as_op "xdsb refresh" 
+  ulkrecipe:
+    - inventory close  
+    - title "title:<&8>[ <&6><&l>XDawn <&8>]" "subtitle:<&6>物品已解锁！" fade_in:1s stay:0s fade_out:1s targets:<player>  
+    - firework <player.location> star primary:yellow fade:white
+    - announce "<&8>[ <&6>XDawn <&8>]<&3> <player.name> <&7>刚刚解锁了 <&6>%tgtitem% <&7>的合成配方！"
+  npc1get1:
+    - inventory close
+    - if <player.has_flag[npc1get1]> {
+      - actionbar "<&8>[ <&6><&l>XDawn <&8>]<&7>冷却尚未结束，剩余时间<&6><player.flag[npc1get1].expiration.in_minutes.round><&7>分钟"
+      - queue clear
+    }
+    - flag <player> npc1get1 duration:10m
+    - execute as_op "mi load w1"
+  npc1get2:
+    - inventory close
+    - if <player.has_permission[npc1get2]> {
+      - actionbar "<&8>[ <&6><&l>XDawn <&8>]<&7>你已经领取过了哦"
+      - queue clear
+    }
+    - actionbar "<&8>[ <&6><&l>XDawn <&8>]<&7>物品已发放"
+    - execute as_server "pex user <player.name> add npc1get2"
+    - execute as_op "mm i get v1q2"
+    - execute as_op "mm i give <player.name> coina 10"
+
+  npc1f1:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> v1m1 2"
+    - execute as_server "mm i give <player.name> v1rabbitk1 5"    
+    - execute as_server "mm i give <player.name> coina 5"     
+    - execute as_server "pex user <player.name> add v1q1"
+    - experience give 30
+    - flag <player> DNPC_mq_process:v1q2   
+  npc1f2:
+    - if <player.inventory.contains.display[strict:<&7>黑铁鱼叉]> {
+      - inject locally finishtask
+      - execute as_server "mm i give <player.name> coina 20" 
+      - execute as_server "pex user <player.name> add v1q2"
+      - experience give 50
+      - flag <player> DNPC_mq_process:v1q3          
+    } else {
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务物品不足哦'
+    }
+  npc1f3:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> coina 12" 
+    - execute as_server "mm i give <player.name> v1recipe1 1"    
+    - execute as_server "pex user <player.name> add v1q3"
+    - experience give 50    
+    - flag <player> DNPC_mq_process:v1q4   
+  npc1f4:
+    - if <player.inventory.contains.display[strict:<&f>兔皮上衣]> && <player.inventory.contains.display[strict:<&f>兔皮裤子]> {
+      - inject locally finishtask
+      - execute as_server "pex user <player.name> add v1q4"
+      - execute as_server "mm i give <player.name> coina 30"       
+      - experience give 100
+      - flag <player> DNPC_mq_process:v1q5   
+
+    } else {
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务物品不足哦'
+    }
+  npc1f5:
+    - if <player.inventory.contains.display[strict:<&7>黑面包].quantity[10]> {
+      - inject locally finishtask
+      - execute as_server "pex user <player.name> add v1q5"
+      - execute as_server "mm i give <player.name> v1food1 20"       
+      - experience give 30
+      - flag <player> DNPC_mq_process:v1q6
+    } else {
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务物品不足哦'
+    }    
+  npc1f6:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> coina 25"     
+    - execute as_server "pex user <player.name> add v1q6"
+    - experience give 120
+    - flag <player> DNPC_mq_process:v1q7
+  npc1f7:
+    - if <player.has_permission[v1q7]> queue clear
+    - inject locally finishtask
+    - execute as_op "rpginv item <player.name> v1glov1"    
+    - execute as_server "mm i give <player.name> v1recipe2"      
+    - execute as_server "pex user <player.name> add v1q7"
+    - experience give 60
+    - flag <player> DNPC_mq_process:v1q8
+  npc1f8:
+    - if <player.xp.level> < 50 {
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>尚未达到要求的等级'
+      - queue clear
+    }
+    - inject locally finishtask
+    - execute as_op "rpginv item <player.name> damage-rune1"   
+    - execute as_server "pex user <player.name> add v1q17"
+    - experience give 200
+    - flag <player> DNPC_mq_process:v1q18
+  npc1f9:
+    - if !<player.inventory.contains.display[strict:<&2>死血].quantity[3]> {
+      - inventory close
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务尚未完成'
+      - queue clear
+    }
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> questspe 2"     
+    - execute as_server "mm i give <player.name> v1recipe4 1"       
+    - execute as_server "pex user <player.name> add v1q18"
+    - experience give 80
+    - flag <player> DNPC_mq_process:v1q19
+  npc1f10:
+    - if <player.flag[stat_fspe]> < 2 || !<player.has_flag[stat_fspe]> {
+      - inventory close
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务尚未完成'
+      - queue clear
+    }
+    - inject locally finishtask  
+    - execute as_server "pex user <player.name> add v1q19"
+    - experience give 80
+    - flag <player> DNPC_mq_process:v1q20
+  npc2get1:
+    - inventory close
+    - if <player.has_permission[npc2get1]> {
+      - actionbar "<&8>[ <&6><&l>XDawn <&8>]<&7>你已经领取过了哦"
+      - queue clear
+    }
+    - actionbar "<&8>[ <&6><&l>XDawn <&8>]<&7>物品已发放"
+    - execute as_server "pex user <player.name> add npc2get1"
+    - execute as_op "mm i get v1q2"
+    - execute as_op "mm i give <player.name> coina 10" 
+  npc2f1:
+    - if !<player.has_permission[npc2.r1]> {
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务尚未完成'
+      - queue clear
+    }
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> v1m1 2"     
+    - execute as_server "pex user <player.name> add v1q8"
+    - experience give 60
+    - flag <player> DNPC_mq_process:v1q9   
+  npc2f2:
+    - if !<player.inventory.contains.display[strict:<&7>黑铁短刀]> {
+      - inventory close
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务尚未完成'
+      - queue clear
+    }
+    - inject locally finishtask
+    - execute as_server "pex user <player.name> add v1q9"
+    - experience give 50
+    - flag <player> DNPC_mq_process:v1q10
+  npc2f3:
+    - if !<player.inventory.contains.display[strict:<&2>黑铁陨星]> {
+      - inventory close
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务尚未完成'
+      - queue clear
+    }
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> l1enhance1 1"     
+    - execute as_server "pex user <player.name> add v1q10"
+    - experience give 50
+    - flag <player> DNPC_mq_process:v1q11          
+  npc2f4:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> coina 40"     
+    - execute as_server "pex user <player.name> add v1q11"
+    - experience give 50
+    - flag <player> DNPC_mq_process:v1q12
+  npc2f5:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> coina 50"     
+    - execute as_server "mm i give <player.name> v1recipe3 1"         
+    - execute as_server "pex user <player.name> add v1q12"
+    - experience give 50
+    - flag <player> DNPC_mq_process:v1q13        
+  npc2ulk1:
+    - execute as_server "pex user <player.name> add npc2.r1"
+    - define tgtitem 黑铁短刀
+    - inject locally ulkrecipe
+
+  npc2ulk2:
+    - execute as_server "pex user <player.name> add npc2.r2"
+    - define tgtitem 黑铁剑-淬毒
+    - inject locally ulkrecipe    
+
+  npc3ulk1:
+    - execute as_server "pex user <player.name> add npc3.r1"
+    - define tgtitem 兔皮上衣
+    - inject locally ulkrecipe
+  npc3ulk2:
+    - execute as_server "pex user <player.name> add npc3.r2"
+    - define tgtitem 狼皮帽子
+    - inject locally ulkrecipe    
+  npc4f1:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> coina 20"     
+    - execute as_server "mm i give <player.name> v1food2 12"  
+    - execute as_server "mm i give <player.name> l1enhance1 1"      
+    - execute as_server "pex user <player.name> add v1q10b"
+    - experience give 60     
+  npc5fd1:
+    - if !<player.inventory.contains.display[strict:<&6>摩根铜币].quantity[20]> {
+      - inventory close
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>物品不足'
+      - queue clear
+    }
+    - if <player.has_flag[npc5fd1]> {
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>冷却未结束'    
+      - queue clear
+    }
+    - feed amount:20 target:<player>
+    - take bydisplay:<&6>摩根铜币 quantity:20
+    - actionbar "<&8>[ <&6><&l>XDawn <&8>]<&7>你感觉吃饱了"
+    - flag <player> npc5fd1 duration:300s
+  npc6f1:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> coina 25"     
+    - execute as_server "pex user <player.name> add v1q9b"
+    - execute as_server "mm i give <player.name> v1fged 1"       
+    - experience give 60 
+  npc6f2:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> coina 25"     
+    - execute as_server "pex user <player.name> add v1n6b1"
+    - execute as_op "rpginv item <player.name> v1wolfnk"
+    - experience give 80
+  npc7f1:
+    - if !<player.inventory.contains.display[strict:<&6><&8>[<&6>I<&8>]<&d>生命符文 <&2>+3]> {
+      - inventory close
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>物品不足'
+      - queue clear
+    }    
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> l1runea1 1"     
+    - execute as_server "pex user <player.name> add v1q15"
+    - experience give 200   
+    - flag <player> DNPC_mq_process:v1q16
+  npc7f2:
+    - inject locally finishtask   
+    - execute as_server "pex user <player.name> add v1q16"
+    - experience give 200      
+    - flag <player> DNPC_mq_process:v1q17
+  npc8hl1:
+    - if <player.health.max> == <player.health> {
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>你不需要治疗'
+      - queue clear
+    }
+    - if !<player.inventory.contains.display[strict:<&6>摩根铜币].quantity[30]> {
+      - inventory close
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>物品不足'
+      - queue clear
+    }
+    - if <player.has_flag[npc5fd1]> {
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>冷却未结束'    
+      - queue clear
+    }
+    - heal <player.health.max> target:<player>
+    - take bydisplay:<&6>摩根铜币 quantity:30
+    - actionbar "<&8>[ <&6><&l>XDawn <&8>]<&7>你感觉伤口不那么痛了"
+    - flag <player> npc5fd1 duration:600s
+  npc8f1:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> v1heal1 3"     
+    - execute as_server "pex user <player.name> add v1q13"
+    - experience give 50
+    - flag <player> DNPC_mq_process:v1q14
+    
+  npc8f2:
+    - inject locally finishtask
+    - execute as_server "mm i give <player.name> v1heal1 3"     
+    - execute as_server "pex user <player.name> add v1q14"
+    - execute as_op "rpginv item <player.name> health-rune1"
+    - experience give 50    
+    - flag <player> DNPC_mq_process:v1q15
+
+  npc11f1:
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q2"
+    - execute as_server "mm i give <player.name> v1m1 3"     
+    - experience give 30    
+    - flag <player> DNPC_mq_process:v2q3
+
+  npc11f2:
+    - inject locally judgemqkill
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q3"
+    - execute as_server "mm i give <player.name> coina 35"   
+    - execute as_server "mm i give <player.name> v1m1 5" 
+    - experience give 60    
+    - flag <player> DNPC_mq_process:v2q4 
+
+  npc12f1:
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q1"
+    - execute as_server "mm i give <player.name> coina 35"   
+    - execute as_server "mm i give <player.name> v1heal3 1"       
+    - execute as_server "mm i give <player.name> v1heal4 3"
+    - experience give 60    
+    - flag <player> DNPC_mq_process:v2q2
+  npc13f1:
+    - inject locally judgemqkill    
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q4"
+    - execute as_server "mm i give <player.name> coina 50"   
+    - experience give 50    
+    - flag <player> DNPC_mq_process:v2q5  
+
+  npc13f2:   
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q5"
+    - execute as_server "mm i give <player.name> coina 50"   
+    - execute as_server "mm i give <player.name> questspe 1"       
+    - experience give 50    
+   
+    - flag <player> DNPC_mq_process:v2q6
+
+  npc13f3:   
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q6"    
+    - execute as_server "mi load a6 <player.name> 1"
+    - experience give 50    
+    - flag <player> DNPC_mq_process:v2q7
+
+  npc13f4:   
+    - if !<player.inventory.contains.display[strict:<&c>赤火<&7>·<&7>熊皮靴]> {
+      - inventory close
+      - narrate '<&8>[ <&6><&l>XDawn <&8>]<&7>任务尚未完成'
+      - queue clear
+    }
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q7"
+    - execute as_server "mm i give <player.name> coinb 1"   
+    - experience give 50    
+    - flag <player> DNPC_mq_process:v2q8
+  npc13f5:   
+    - inject locally judgemqkill  
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q8"
+    - execute as_server "mm i give <player.name> coinb 1" 
+    - experience give 50    
+    - flag <player> DNPC_mq_process:v2q9
+  npc13f6:   
+    - inject locally finishtask 
+    - execute as_server "pex user <player.name> add v2q9"
+    - execute as_server "mm i give <player.name> coinb 2"   
+    - experience give 150    
+    - flag <player> DNPC_mq_process:v2q10
+
+  judgemqkill:
+    - define id <player.flag[DNPC_mq_process]>
+    - if <player.flag[DNPC_mq_killp]> !>= <s@XDsb_mqtrans.yaml_key[%id%.tgtamt]> {
+      - narrate "<&8>[ <&6><&l>XDawn <&8>]<&7>任务要求尚未完成"
+      - queue clear
+    } else {
+      - flag <player DNPC_mq_killp:!
+    }
+DNPC_CMD:
+  type: command
+  name: dnpc
+  description: NPC核心系统
+  usage: /dnpc
+  aliases: ''
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+  - define npc <c.args.get[1]>
+  - define tsk <c.args.get[2]>
+  - inject s@DNPC_Tsk path:npc%npc%%tsk%  
+
+DNPC_PRO_npc5fd1:
+  type: procedure
+  script:
+    - if <player.has_flag[npc5fd1]> {
+      - determine '<&6><player.flag[npc5fd1].expiration.in_minutes.round> <&7>分'
+    } else {
+      - determine '&60 &7分'
+    }
+DNPC_PRO_npc8hl1:
+  type: procedure
+  script:
+    - if <player.has_flag[npc5fd1]> {
+      - determine '<&6><player.flag[npc5fd1].expiration.in_minutes.round> <&7>分'
+    } else {
+      - determine '&60 &7分'
+    }    

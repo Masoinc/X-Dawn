@@ -1,0 +1,28 @@
+Dactionbar_Core:
+  type: world
+  debug: false
+  events:
+    on system time minutely:
+    - bossbar create tips ID players:<server.list_online_players>         
+    - random 8
+    - define content '<&8>[ <&6>基地的提示 <&8>] <&7>SHIFT + 完全抬头可开启 <&6>功能核心'
+    - define content '<&8>[ <&6>基地的提示 <&8>] <&7>建议按下 F11 进入全屏模式，获得更好的游戏体验'    
+    - define content '<&8>[ <&6>基地的提示 <&8>] <&7>使用 <&6>祈祷之印 <&7>进行祈祷，可减少重生疲劳时间'  
+    - define content '<&8>[ <&6>基地的提示 <&8>] <&7>可以使用<&6> 功能核心 <&7>中的地图进行快速传送'  
+    - define content '<&8>[ <&6>基地的提示 <&8>] <&7>武器耐久值为0时，并不会消失，但需要修理后才可以继续使用'     
+    - define content '<&8>[ <&6>基地的提示 <&8>] <&7>将武器放入第一格才可以使用'
+    - define content '<&8>[ <&6>基地的提示 <&8>] <&7>点击背包里的合成格，可以进入装备与符文面板'            
+    - define content '<&8>[ <&6>基地的提示 <&8>] <&7>将bug详情与您的id发送邮件到9@xdawn.me,核实后将获得一定奖励'     
+    - bossbar update tips ID players:<server.list_online_players> title:%content% color:WHITE
+    on player starts sneaking:
+    - if <player.location.pitch> == -90.0 {
+      - determine passively cancelled
+      - execute as_op "bs Core"
+    }
+    on player right clicks block:
+      - if <c.location> == "l@-2.0,101.0,1.0,Base" {
+        - inject s@DNPC_Tsk path:v1start
+      }
+    on v1stop command:
+        - inject locally v1stop
+    

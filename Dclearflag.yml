@@ -1,0 +1,6 @@
+Dclearflag:
+  type: world
+  events:
+    on player joins:
+      - flag <player> playing:!
+      - flag <player> v1heal1:!

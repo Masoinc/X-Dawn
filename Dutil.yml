@@ -1,0 +1,13 @@
+DUtil:
+  type: world
+  events:
+    on player right clicks:
+      - if <player.item_in_hand.display> == "<&6>·ãÑ©´åµÄ¹ÊÊÂ" {
+        - execute as_op "xdmap l1"
+      }
+
+
+
+
+
+

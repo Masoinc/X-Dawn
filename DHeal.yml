@@ -1,0 +1,46 @@
+DHeal:
+  type: world
+  events:
+    on player right clicks:
+      - choose "<player.item_in_hand.display.escaped>":
+        - case "&ss2廉价的草药":
+          - if <player.has_flag[v1heal1]> {
+            - actionbar "<&8>[ <&7>冷却中...剩余时间<&6><player.flag[v1heal1].expiration.time.second>s <&8>]"
+            - queue clear
+          }   
+          - if <player.health.percentage> >= 100 {
+            - actionbar "<&8>[ <&7>生命值已满 <&8>]"
+            - queue clear
+          }                   
+          - take bydisplay:<&7>廉价的草药 amount:1
+          - heal 8
+          - flag <player> v1heal1 duration:90s
+        - case "&ss2接骨木的叶片": 
+          - if <player.has_flag[v1heal2]> {
+            - actionbar "<&8>[ <&7>冷却中...剩余时间<&6><player.flag[v1heal1].expiration.time.second>s <&8>]"
+            - queue clear
+          }   
+          - if <player.health.percentage> >= 100 {
+            - actionbar "<&8>[ <&7>生命值已满 <&8>]"
+            - queue clear
+          }                   
+          - take bydisplay:<&2>接骨木的叶片 amount:1
+          - heal 12
+          - flag <player> v1heal1 duration:90s
+        - case "&ss2刺槐伤药": 
+          - if <player.has_flag[v1heal3]> {
+            - actionbar "<&8>[ <&7>冷却中...剩余时间<&6><player.flag[v1heal3].expiration.time.second>s <&8>]"
+            - queue clear
+          }   
+          - if <player.health.percentage> >= 100 {
+            - actionbar "<&8>[ <&7>生命值已满 <&8>]"
+            - queue clear
+          }                   
+          - take bydisplay:<&2>刺槐伤药"片 amount:1
+          - heal 20
+          - flag <player> v1heal1 duration:120s
+
+
+
+
+

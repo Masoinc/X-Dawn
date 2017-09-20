@@ -1,0 +1,381 @@
+XDscoreboard_Core:
+    type: world
+    refresh:
+    - define content '<&6>◇ <&7>商行余额<&co> <&6><player.money.round> <&7>银币<proc[XDsb_maxheal]>'
+    - define content2 '<&6>◇ <&7>经验进度<&8>[Lv.<&6><player.xp.level><&8>]<&co> <&6><player.xp.round><&7>%|<&6>◇ <&7>今日在线<&co> <proc[XDeath_pro_oltime]>||<&6><&chr[3004]> 主线-<proc[XDsb_mqtrans].context[0].parse_color[&]><proc[XDsb_mqtrans].context[1].parse_color[&]><proc[XDsb_mqtrans].context[2].parse_color[&]><proc[XDsb_mqtrans].context[3].parse_color[&]>|<&7><&8>|<&6><&chr[3004]> <&2>已激活的效果 |<&2>◇ <&7>死亡疲劳时间<&co> <proc[XDsb_dtime]>|<&2>◇ <&7>经验加成<&co> <proc[XDsb_expmul]><&7>|<&7><proc[XDsb_q]><proc[XDsb_qevy]><proc[XDsb_qspe]>'
+    - sidebar set "title:<&8>[ <&6>个人信息 <&8>]" "values:<def[content]>|<def[content2]>" "players:<player>" 
+    events:  
+        on player joins:
+        - sidebar remove players:<player>                
+        on player closes inventory:
+        - inject locally refresh
+        on player changes xp:
+        - inject locally refresh
+        on player right clicks npc:
+        - if <c.entity.name> CONTAINS "荷兰人号" {
+          - if <player.flag[DNPC_mq_process]> !== v1q0 {
+            - queue clear
+          }
+          - flag <player> DNPC_mq_process:v1q1
+          - execute as_player "xdsb refresh"
+        } else if <c.entity.name> CONTAINS "凯尔" {
+          - if <player.flag[DNPC_mq_process]> !== v2q1 {
+            - queue clear
+          }
+          - flag <player> DNPC_mq_process:v2q1p1
+          - execute as_player "xdsb refresh"
+        } else if <c.entity.name> CONTAINS "奥尔瑟雅" {
+          - if <player.flag[DNPC_mq_process]> !== v2q1p1 {
+            - queue clear
+          }
+          - flag <player> DNPC_mq_process:v2q1p2
+          - execute as_player "xdsb refresh"
+        } else if <c.entity.name> CONTAINS "洛林" {
+          - if <player.flag[DNPC_mq_process]> !== v2q10 {
+            - queue clear
+          }
+          - flag <player> DNPC_mq_process:v2q10b1
+          - execute as_player "xdsb refresh"
+        } 
+XDScoreboard_CMD:
+  type: command
+  name: xdsb
+  description: 计分板
+  usage: /xdsb
+  aliases: ''
+  permission: ''
+  permission message: Sorry, <player.name>, you can't use my command because you don't have the permission '<permission>'!
+  allowed help:
+  - determine <player.is_op||<context.server>>
+  tab complete:
+  - if !<player.is_op||<context.server>> queue clear
+  - determine <server.list_online_players.parse[name].include[pizza|potato|anchovy].filter[starts_with[<context.args.last>]]>
+  script:
+  - if <c.args.get[1]> == "refresh" {
+    - inject s@XDscoreboard_Core path:refresh
+  }
+
+XDsb_maxheal:
+  type: procedure
+  script:
+    - if <player.health.max> <= 20 {
+      - determine <&7>
+    } else {
+      - determine '|<&6>◇ <&7>最大生命值<&8>[Max]<&co> <&6>20 <&7>+ <&2><player.health.max.round.sub[20]>'
+    }
+
+XDsb_mqtrans:
+  type: procedure
+  definitions: "line"
+  v1s:
+    type: tips
+    content0: "风色将起"
+    content1: "|按下按钮"
+    content2: "|即可开始游戏"
+    content3: ""    
+  v1q0:
+    type: tips
+    content0: "风色将起"
+    content1: "|右键&6\"荷兰人号船长-巴伦\""
+    content2: "|领取任务"  
+    content3: ""
+  v1q1: 
+    type: tips
+    content0: "跑得比谁都快I"
+    content1: "|&7领取破旧的鱼叉"
+    content2: "|&7击杀&2枫雪村野兔"  
+    content3: "|&7获取&2枫雪村野兔肉&7x10"    
+  v1q2: 
+    type: tips  
+    content0: "锻造技术I"
+    content1: "|&7找[&6铁匠&7]安德罗斯"
+    content2: "|&7锻造一把黑铁鱼叉"   
+    content3: ""      
+  v1q3: 
+    type: tips  
+    content0: "跑得比谁都快II"
+    content1: "|&7击杀&2枫雪村野兔" 
+    content2: "|&7获得&2枫雪村野兔肉 &7x10"   
+    content3: "|&7&8[&f普通&8]&2野兔皮 &7x2"     
+  v1q4: 
+    type: tips    
+    content0: "锻造技术II"
+    content1: "|找&7[&6制皮师&7]索德尔"    
+    content2: "|&7打造兔皮上衣和兔皮裤子"
+  v1q5: 
+    type: tips    
+    content0: "食物补给"  
+    content1: "|&7找[&6酒馆老板&7]劳拉" 
+    content2: "|&7购买黑面包x10"
+  v1q6: 
+    type: tips    
+    content0: "食尸动物I"    
+    content1: "|&7前往&a&a食尸蛛洞"
+    content2: "|&7击杀&2食尸蛛"    
+    content3: "|&7获取10个&2食尸蛛的毒腺"   
+  
+  v1q7: 
+    type: tips    
+    content0: "老船长"    
+    content1: "|&7与船长对话并提交任务"
+    content2: "|&7与&7[&6铁匠&7]安德罗斯对话"   
+    content3: "|&7领取任务"
+  v1q8: 
+    type: tips    
+    content0: "老船长"    
+    content1: "|&7与船长对话并提交任务"
+    content2: "|&7与&7[&6铁匠&7]安德罗斯对话"   
+    content3: "|&7领取任务"
+  v1q9: 
+    type: tips    
+    content0: "稀缺物资I"    
+    content1: "|&7与&7[&6旅行商人&7]查普曼对话"
+    content2: "|&7获得相关材料"   
+    content3: "|&7铸造黑铁短刀"
+  v1q10: 
+    type: tips    
+    content0: "稀缺物资II"    
+    content1: "|&7完成&7[&6卫兵&7]席恩的委托"
+    content2: "|&7获得黑铁陨星"   
+    content3: ""  
+  v1q11: 
+    type: tips    
+    content0: "锻造技术II"
+    content1: "|&7使用&2黑铁陨星"    
+    content2: "|&7强化&2黑铁短刀"
+  v1q12: 
+    type: tips    
+    content0: "锻造技术III"
+    content1: "|&7修理&2黑铁短刀"    
+    content2: "&7"
+    content3: "&7"    
+  v1q13: 
+    type: tips    
+    content0: "远古诅咒"
+    content1: "|&7与&7[&6医生&7]杰森对话"    
+    content2: "|&7了解任务详情"
+    content3: "&7"  
+  v1q14: 
+    type: tips    
+    content0: "远古诅咒"
+    content1: "|&7前往&a先古墓地"    
+    content2: "|&7击杀&a行尸"
+    content3: "|&7获得&2腐败的血液&7x10"  
+  v1q15: 
+    type: tips    
+    content0: "秘法符文"
+    content1: "|&7与&7[&6教士&7]迪恩对话"    
+    content2: "|&7并将生命符文强化至&2+3"
+    content3: ""  
+  v1q16: 
+    type: tips    
+    content0: "秘法符文"
+    content1: "|&7使用一次&2祈祷之印"    
+    content2: ""
+    content3: ""  
+  v1q17: 
+    type: tips    
+    content0: "枫雪之外"
+    content1: "|&7与&6荷兰人号船长-巴伦&7对话"    
+    content2: "|&7将等级提升至&6Lv.50"
+    content3: ""  
+  v1q18: 
+    type: tips    
+    content0: "远古诅咒"
+    content1: "|&7前往&a先古墓地"    
+    content2: "|&7击杀&2魔化行尸&7"
+    content3: "|&7取得&2死血&7x3"  
+  v1q19: 
+    type: tips    
+    content0: "稀缺资源"
+    content1: "|&7获取&2特殊委托书"    
+    content2: "|&7并完成2个特殊委托"
+    content3: ""  
+  v1q20: 
+    type: tips    
+    content0: "新征程"
+    content1: "|&7前往&2布莱登堡"    
+    content2: ""
+    content3: ""  
+  v2q1: 
+    type: tips    
+    content0: "莫拉格帮？"
+    content1: "|&7与[&6商队领队&7]凯尔对话"    
+    content2: ""
+    content3: ""    
+  v2q1p1: 
+    type: tips    
+    content0: "莫拉格帮？"
+    content1: "|&7前往&2布莱登堡城内"    
+    content2: "|&7与[&6医生&7]奥尔瑟雅对话"
+    content3: ""  
+  v2q1p2: 
+    type: tips    
+    content0: "莫拉格帮？"
+    content1: "|&7在布莱登堡的野外"    
+    content2: "|&7击杀&2莫拉格帮的低级头目"
+    content3: "|&7获取&2接骨木的叶片&7x5"          
+  v2q2: 
+    type: tips
+    content0: "莫拉格帮?"
+    content1: "|&7将&7[&2优良的接骨木伤药&7]"
+    content2: "|&7交给&7[&6商队领队&7]凯尔"      
+    content3: ""
+  v2q3: 
+    type: kill
+    content0: "莫拉格帮?"
+    tgtamt: '20'
+    tgtname: '&2莫拉格帮的喽啰'
+    tgtfinish: "&7向&7[&6商队领队&7]凯尔提交任务"      
+  v2q4: 
+    type: kill  
+    content0: "隐居的杂货商"
+    tgtamt: '10'
+    tgtname: '&2狂暴的白熊'
+    tgtfinish: "&7向&7[&6杂货商&7]埃布尔提交任务"
+  v2q5: 
+    type: tips
+    content0: "魔法之源"
+    content1: "|&7前往&2 凯尔特森林"
+    content2: "|&7击杀&2 狂暴的白熊&7[&6精英&7]&7"
+    content3: "|&7取得 &c赤火&7·&2低级的魔能碎片&7x1"
+
+  v2q6: 
+    type: tips
+    content0: "魔法之源"
+    content1: "|&7前往&2 凯尔特森林"
+    content2: "|&7击杀&2 狂暴的白熊&7[&6精英&7]&7"
+    content3: "|&7取得 &c赤火&7·&2低级的魔能碎片&7x2"  
+
+  v2q7: 
+    type: tips
+    content0: "魔法之源"
+    content1: "|&7前往&2 凯尔特森林"
+    content2: "|&7击杀&2 狂暴的白熊&7[&6精英&7]&7"
+    content3: "|&7取得 &c赤火&7·&f熊皮靴"  
+
+  v2q8:
+    type: kill  
+    content0: "魔法之源"
+    tgtamt: '10'
+    tgtname: '&2狂暴的白熊'
+    tgtfinish: "&7向&7[&6杂货商&7]埃布尔提交任务"  
+
+  v2q9:
+    type: tips
+    content0: "生财有道"
+    content1: "|&7向&7[&6医生&7]奥尔瑟雅询问"
+    content2: "|&2优良的接骨木伤药&7的制作方法"
+    content3: "|&7并制作8个交给&7[&6杂货商&7]埃布尔"   
+  v2q10:
+    type: tips
+    content0: "魔能危机"
+    content1: "|&7前往&2摩根商行布莱登堡支行"
+    content2: "|&7与&7[&6商行职员&7]洛林对话"
+    content3: ""                   
+  v2q10b1:
+    type: tips
+    content0: "魔能危机"
+    content1: "|&7前往&2摩根商行布莱登堡支行"
+    content2: "|&7与&7[&6商行职员&7]洛林对话"
+    content3: "|&7与&7[&6商行行长&7]罗德里克对话"         
+  test:
+    content0: <player>
+  script:
+    - if !<player.has_flag[DNPC_mq_process]> {
+      - determine <s@XDsb_mqtrans.yaml_key[v1s.content%line%]>
+    }
+    - define id <player.flag[DNPC_mq_process]>
+    - choose "<s@XDsb_mqtrans.yaml_key[%id%.type]>":
+      - case tips:
+        - if <s@XDsb_mqtrans.yaml_key[%id%.content%line%]> = null {
+          - determine "|"
+        }
+        - determine <s@XDsb_mqtrans.yaml_key[%id%.content%line%]>
+      - case kill: 
+        - choose "%line%":
+          - case "0":
+            - determine <s@XDsb_mqtrans.yaml_key[%id%.content0]>
+          - case "1":
+            - if !<player.has_flag[DNPC_mq_killp]> {
+              - determine '|&7击杀<s@XDsb_mqtrans.yaml_key[%id%.tgtname].parse_color[&]>&7[&60&7/&6<s@XDsb_mqtrans.yaml_key[%id%.tgtamt]>&7]'
+            }
+            - if <player.flag[DNPC_mq_killp]> >= <s@XDsb_mqtrans.yaml_key[%id%.tgtamt]> {
+              - determine |<s@XDsb_mqtrans.yaml_key[%id%.tgtfinish].parse_color[&]>
+            }
+            - determine '|&7击杀<s@XDsb_mqtrans.yaml_key[%id%.tgtname].parse_color[&]>&7[&6<player.flag[DNPC_mq_killp].round>/&6<s@XDsb_mqtrans.yaml_key[%id%.tgtamt]>&7]'
+          - default:
+            - determine "<&7>"          
+      
+    
+      # - if <player.has_flag[DNPC_mq_process]> {
+      #   - define id <player.flag[DNPC_mq_process]>
+      #   - if %type% == "demand2" && <s@XDsb_mqtrans.yaml_key[%id%.%type%]> == null {
+      #     - if <player.flag[mqprocess].round> >= <s@XDsb_mqtrans.yaml_key[%id%.tgtamt]> {
+      #       - determine "<&7>进度<&co> <&6>可提交"
+      #     }
+      #     - determine "<&7>进度<&co> [<&6><player.flag[mqprocess].round><&7>/<&6><s@XDsb_mqtrans.yaml_key[%id%.tgtamt]><&7>] "
+      #   }
+      #   - determine <s@XDsb_mqtrans.yaml_key[%id%.%type%]> 
+      # } else {
+      #   - if <def[type]> == name {
+      #     - determine 巴伦
+      #   } else if <def[type]> == npcname {
+      #     - determine 与船长对话
+      #   }
+      # }
+
+
+
+XDsb_dtime:
+  type: procedure
+  script:
+    - if !<player.has_flag[XDdeath_runea]> {
+      - determine <&2><proc[XDeath_pro_dlftime]><&7>s
+    } else {
+      - determine <&6><proc[XDeath_pro_dlftime].div[2]><&7>s<&8>[-50%]
+    }        
+
+XDsb_expmul:
+  type: procedure
+  script:
+    - if <player.in_group[VIII]> {
+      - define base <&c>200
+    } else if <player.in_group[VII]> {
+      - define base <&6>150
+    } else if <player.in_group[VI]> {
+      - define base <&2>120
+    } else {
+      - define base <&7>100
+    }    
+    - if <player.has_flag[XDdeath_runeb2]> {
+      - determine "<&7>%base%<&pc><&sp>+<&6> 100<&pc>"
+    } else if <player.has_flag[XDdeath_runeb1]> {
+      - determine "<&7>%base%<&pc><&sp>+<&6> 50<&pc>"
+    } else {
+      - determine "<&7>%base%%"v
+    }
+XDsb_q:
+  type: procedure
+  script:  
+    - if <player.has_flag[evy]> || <player.has_flag[spe]> {
+      - determine '|<&6><&chr[3004]> <&3>进行中的委托'
+    } else {
+      - determine <&7>
+    }
+XDsb_qevy:
+  type: procedure
+  script:
+    - if <player.has_flag[evy]> {
+      - determine "|<&3>◇ <player.flag[evytgt]><&8>[<&6><player.flag[evyprocess].round><&8>/<&6><player.flag[evydemand]><&8>]"
+    } else {
+      - determine <&7>
+    }
+XDsb_qspe:
+  type: procedure
+  script:
+    - if <player.has_flag[spe]> {
+      - determine "|<&3>◇ <player.flag[spetgt]><&8>[<&6><player.flag[speprocess].round><&8>/<&6><player.flag[spedemand]><&8>]"
+    } else {
+      - determine <&7>
+    }    

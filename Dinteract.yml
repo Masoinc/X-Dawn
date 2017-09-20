@@ -1,0 +1,20 @@
+Dinteract:
+    type: world
+    events:
+        on player clicks block:
+            - if <c.location.simple> == "21,63,129,Volumn1" {
+                - execute as_op "XD"
+                - determine cancelled
+            } 
+            - if <c.location.simple> == "17,63,132,Volumn1" {
+                - execute as_op "XDF"
+                - determine cancelled
+            }             
+            - if <c.location.simple> == "-7,68,193,Volumn1" {
+                - execute as_op "XDRE"
+                - determine cancelled
+            }              
+            - if <c.location.simple> == "0,65,136,Volumn1" {
+                - execute as_op "enderchest"
+                - determine cancelled
+            }                          
